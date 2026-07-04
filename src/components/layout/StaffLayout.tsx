@@ -58,8 +58,11 @@ export const StaffLayout = () => {
           <div className="flex items-center gap-2 md:hidden">
             <span className="text-xl font-bold text-secondary">Staff</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">{user?.name}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium hidden md:block">{user?.first_name}</span>
+            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+              {user?.first_name?.charAt(0) || 'S'}
+            </div>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">

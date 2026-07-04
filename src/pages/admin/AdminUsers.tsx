@@ -11,7 +11,7 @@ export const AdminUsers = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">User Management</h1>
-        <Button>Invite User</Button>
+        <Button onClick={() => alert('TODO: Connect to POST /api/users/invite/')}>Invite User</Button>
       </div>
 
       <Card>
@@ -37,10 +37,10 @@ export const AdminUsers = () => {
                 {mockUsers.map((u) => (
                   <tr key={u.id} className="hover:bg-muted/50 transition-colors">
                     <td className="px-6 py-4 font-medium flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                        {u.name.charAt(0)}
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                        {u.first_name?.charAt(0)}
                       </div>
-                      {u.name}
+                      {u.first_name} {u.last_name}
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{u.email}</td>
                     <td className="px-6 py-4">

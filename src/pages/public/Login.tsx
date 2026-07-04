@@ -3,24 +3,28 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { motion } from 'framer-motion';
+import { Role } from '../../types';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<Role>('customer');
   const [error, setError] = useState('');
-  const { login, mockLoginAs } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setError('');
-      await login(email, password);
-      navigate('/dashboard');
+      await login(email, password, role);
+      
+      // Redirect based on role
+      if (role === 'admin') navigate('/admin/dashboard');
+      else if (role === 'staff') navigate('/staff/dashboard');
+      else navigate('/dashboard');
     } catch (err) {
-      setError('Invalid credentials. For demo, try quick login buttons.');
+      setError('Invalid credentials or network error.');
     }
   };
 
@@ -43,7 +47,31 @@ export const Login = () => {
         <div className="p-8 md:p-12">
           <div className="mb-8">
             <h3 className="text-2xl font-semibold mb-2">Sign In</h3>
-            <p className="text-sm text-muted-foreground">Enter your email and password to continue.</p>
+            <p className="text-sm text-muted-foreground">Select your role and enter your credentials.</p>
+          </div>
+
+          <div className="flex bg-muted p-1 rounded-lg mb-6">
+            <button 
+              type="button"
+              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'customer' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setRole('customer')}
+            >
+              Student
+            </button>
+            <button 
+              type="button"
+              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'staff' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setRole('staff')}
+            >
+              Staff
+            </button>
+            <button 
+              type="button"
+              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'admin' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setRole('admin')}
+            >
+              Administrator
+            </button>
           </div>
 
           {error && <div className="mb-4 p-3 rounded bg-danger/10 text-danger text-sm">{error}</div>}
@@ -51,7 +79,7 @@ export const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
-              <Input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="student@strathmore.edu" />
+              <Input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="email@strathmore.edu" />
             </div>
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -66,23 +94,6 @@ export const Login = () => {
             </div>
             <Button type="submit" className="w-full">Sign In</Button>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-card text-muted-foreground">Or demo login as:</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <Button variant="outline" className="text-xs" onClick={() => { mockLoginAs('customer'); navigate('/dashboard'); }}>Student</Button>
-              <Button variant="outline" className="text-xs" onClick={() => { mockLoginAs('staff'); navigate('/staff/dashboard'); }}>Staff</Button>
-              <Button variant="outline" className="text-xs" onClick={() => { mockLoginAs('admin'); navigate('/admin/dashboard'); }}>Admin</Button>
-            </div>
-          </div>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Don't have an account? <Link to="/register" className="text-primary font-medium hover:underline">Sign up</Link>

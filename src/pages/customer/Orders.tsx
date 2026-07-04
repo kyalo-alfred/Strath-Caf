@@ -20,7 +20,7 @@ export const Orders = () => {
     const fetchOrders = async () => {
       try {
         const data = await api.getOrders();
-        setOrders(data.filter(o => o.userId === user?.id));
+        setOrders(data.filter(o => o.user === user?.id));
       } finally {
         setLoading(false);
       }
@@ -47,7 +47,7 @@ export const Orders = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       return order.id.toLowerCase().includes(term) || 
-             order.items.some(i => i.meal.name.toLowerCase().includes(term));
+             order.items.some(i => i.menu_item.name.toLowerCase().includes(term));
     }
     return true;
   });
@@ -115,15 +115,15 @@ export const Orders = () => {
                     <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
                   </div>
                   <p className="text-sm text-foreground/80 mb-2 truncate">
-                    {order.items.map(i => `${i.quantity}x ${i.meal.name}`).join(', ')}
+                    {order.items.map(i => `${i.quantity}x ${i.menu_item.name}`).join(', ')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(order.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                    {new Date(order.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                   </p>
                 </div>
                 
                 <div className="flex items-center justify-between sm:flex-col sm:items-end w-full sm:w-auto gap-4">
-                  <span className="font-bold text-lg whitespace-nowrap">KES {order.totalAmount}</span>
+                  <span className="font-bold text-lg whitespace-nowrap">KES {order.total_amount}</span>
                   {['Pending', 'Preparing', 'Ready'].includes(order.status) ? (
                     <Link to={`/orders/${order.id}`}>
                       <Button variant="outline" className="shrink-0 w-full sm:w-auto">Track Order</Button>

@@ -15,7 +15,7 @@ export const AdminReports = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reports</h1>
-        <Button className="gap-2">Generate Custom Report</Button>
+        <Button className="gap-2" onClick={() => alert('TODO: Connect to GET /api/reports/generate')}>Generate Custom Report</Button>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

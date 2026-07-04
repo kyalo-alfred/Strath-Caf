@@ -9,10 +9,10 @@ export const Profile = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.first_name || '',
     email: user?.email || '',
     phone: user?.phone || '0712345678',
-    studentNumber: user?.studentNumber || '123456',
+    student_number: user?.student_number || '123456',
   });
 
   const handleSave = () => {
@@ -29,14 +29,14 @@ export const Profile = () => {
           <div className="flex flex-col sm:flex-row items-center gap-8 mb-8 pb-8 border-b">
             <div className="relative group">
               <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center text-4xl font-bold text-muted-foreground overflow-hidden">
-                {user?.name?.charAt(0)}
+                {user?.first_name?.charAt(0)}
               </div>
               <button className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera className="w-5 h-5" />
               </button>
             </div>
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-bold">{user?.name}</h2>
+              <h2 className="text-2xl font-bold">{user?.first_name}</h2>
               <p className="text-muted-foreground">{user?.email}</p>
               <span className="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full uppercase tracking-wider">
                 {user?.role}
@@ -81,7 +81,7 @@ export const Profile = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Student/Staff Number</label>
                   <Input 
-                    value={formData.studentNumber} 
+                    value={formData.student_number} 
                     disabled
                     className="bg-muted"
                   />
@@ -113,7 +113,7 @@ export const Profile = () => {
             <label className="block text-sm font-medium mb-1">New Password</label>
             <Input type="password" placeholder="••••••••" />
           </div>
-          <Button variant="secondary">Update Password</Button>
+          <Button variant="secondary" onClick={() => alert('TODO: Connect to POST /api/users/password/update/')}>Update Password</Button>
         </CardContent>
       </Card>
     </div>

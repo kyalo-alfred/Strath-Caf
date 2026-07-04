@@ -5,22 +5,22 @@ import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            refetchOnWindowFocus: false,
-            retry: 1,
-        },
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
     },
+  },
 })
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  React.createElement(
+    React.StrictMode,
+    null,
     React.createElement(
-        React.StrictMode,
-        null,
-        React.createElement(
-            QueryClientProvider,
-            { client: queryClient },
-            React.createElement(App)
-        )
+      QueryClientProvider,
+      { client: queryClient },
+      React.createElement(App)
     )
+  )
 )

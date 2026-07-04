@@ -21,7 +21,7 @@ const SortableItem = ({ id, order }: { id: string, order: Order }) => {
           <div className="flex justify-between mb-1">
             <span className="font-bold text-sm">#{order.id}</span>
           </div>
-          <p className="text-xs text-muted-foreground truncate">{order.customerName}</p>
+          <p className="text-xs text-muted-foreground truncate">{order.customer_name}</p>
         </CardContent>
       </Card>
     </div>
@@ -83,9 +83,9 @@ export const StaffQueue = () => {
                       <CardContent className="p-4">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold">#{order.id}</span>
-                          <span className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          <span className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         </div>
-                        <p className="text-sm font-medium mb-3">{order.customerName}</p>
+                        <p className="text-sm font-medium mb-3">{order.customer_name}</p>
                         <div className="flex gap-2 flex-wrap">
                           {status === 'Pending' && <button onClick={() => moveOrder(order.id, 'Preparing')} className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">Start Prep</button>}
                           {status === 'Preparing' && <button onClick={() => moveOrder(order.id, 'Ready')} className="text-xs bg-success text-success-foreground px-2 py-1 rounded">Mark Ready</button>}

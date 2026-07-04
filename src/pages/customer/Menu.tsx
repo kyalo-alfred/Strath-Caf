@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
-import { Meal } from '../../types';
+import { MenuItem } from '../../types';
 import { useCart } from '../../contexts/CartContext';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -11,7 +11,7 @@ import { Search, Filter, Clock, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Menu = () => {
-  const [meals, setMeals] = useState<Meal[]>([]);
+  const [meals, setMeals] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -109,8 +109,8 @@ export const Menu = () => {
             >
               <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow group">
                 <Link to={`/menu/${meal.id}`} className="block relative h-48 overflow-hidden bg-muted">
-                  <img src={meal.imageUrl} alt={meal.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  {!meal.isAvailable && (
+                  <img src={meal.image_url} alt={meal.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {!meal.is_available && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
                       <Badge variant="destructive">Sold Out</Badge>
                     </div>
@@ -129,14 +129,14 @@ export const Menu = () => {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
-                        {meal.prepTimeMinutes} mins
+                        {meal.prep_time_minutes} mins
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xl font-bold">KES {meal.price}</span>
                       <Button 
                         size="sm" 
-                        disabled={!meal.isAvailable}
+                        disabled={!meal.is_available}
                         onClick={() => addToCart(meal)}
                         className="gap-2"
                       >

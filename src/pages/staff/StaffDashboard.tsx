@@ -52,9 +52,9 @@ export const StaffDashboard = () => {
             {orders.slice(0, 5).map(order => (
               <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="font-semibold">{order.id} - {order.customerName}</p>
+                  <p className="font-semibold">{order.id} - {order.customer_name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {order.items.map(i => `${i.quantity}x ${i.meal.name}`).join(', ')}
+                    {order.items.map(i => `${i.quantity}x ${i.menu_item.name}`).join(', ')}
                   </p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${

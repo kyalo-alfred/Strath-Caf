@@ -6,13 +6,14 @@ import { Button } from '../../components/ui/Button';
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingCart } from 'lucide-react';
 
 export const Cart = () => {
-  const { items, updateQuantity, removeFromCart, subtotal } = useCart();
+  const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const subtotal = getCartTotal();
   const navigate = useNavigate();
 
-  const serviceFee = items.length > 0 ? 20 : 0;
+  const serviceFee = cart.length > 0 ? 20 : 0;
   const total = subtotal + serviceFee;
 
-  if (items.length === 0) {
+  if (cart.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
@@ -38,38 +39,38 @@ export const Cart = () => {
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
-            <Card key={item.meal.id} className="overflow-hidden">
+          {cart.map((item) => (
+            <Card key={item.menu_item.id} className="overflow-hidden">
               <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-4">
                 <div className="w-24 h-24 sm:w-20 sm:h-20 rounded-md overflow-hidden shrink-0">
-                  <img src={item.meal.imageUrl} alt={item.meal.name} className="w-full h-full object-cover" />
+                  <img src={item.menu_item.image_url} alt={item.menu_item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 text-center sm:text-left min-w-0 w-full">
-                  <h3 className="font-semibold truncate">{item.meal.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">KES {item.meal.price}</p>
+                  <h3 className="font-semibold truncate">{item.menu_item.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">KES {item.menu_item.price}</p>
                 </div>
                 <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                   <div className="flex items-center border rounded-md">
                     <button 
                       className="p-2 hover:bg-muted transition-colors disabled:opacity-50"
-                      onClick={() => updateQuantity(item.meal.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.menu_item.id, item.quantity - 1)}
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                     <button 
                       className="p-2 hover:bg-muted transition-colors"
-                      onClick={() => updateQuantity(item.meal.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.menu_item.id, item.quantity + 1)}
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="text-right w-20 hidden sm:block font-semibold">
-                    KES {item.meal.price * item.quantity}
+                    KES {item.menu_item.price * item.quantity}
                   </div>
                   <button 
                     className="p-2 text-muted-foreground hover:text-danger hover:bg-danger/10 rounded-md transition-colors"
-                    onClick={() => removeFromCart(item.meal.id)}
+                    onClick={() => removeFromCart(item.menu_item.id)}
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>

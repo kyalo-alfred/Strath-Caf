@@ -50,7 +50,7 @@ export const OrderTracking = () => {
 
   const stages: { status: OrderStatus; label: string; icon: any; desc: string }[] = [
     { status: 'Pending', label: 'Order Received', icon: CheckCircle2, desc: 'We have received your order.' },
-    { status: 'Preparing', label: 'Preparing Meal', icon: ChefHat, desc: 'Chef is preparing your food.' },
+    { status: 'Preparing', label: 'Preparing MenuItem', icon: ChefHat, desc: 'Chef is preparing your food.' },
     { status: 'Ready', label: 'Ready for Collection', icon: Package, desc: 'Your order is ready at the counter.' },
     { status: 'Collected', label: 'Collected', icon: Check, desc: 'Enjoy your meal!' },
   ];
@@ -61,7 +61,7 @@ export const OrderTracking = () => {
 
   // Calculate estimated time remaining
   const now = new Date();
-  const est = new Date(order.estimatedReadyTime);
+  const est = new Date(order.estimated_ready_time);
   const diffMinutes = Math.max(0, Math.round((est.getTime() - now.getTime()) / 60000));
 
   return (
@@ -132,7 +132,7 @@ export const OrderTracking = () => {
                 <h2 className="text-3xl font-bold">--:--</h2>
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold">{new Date(order.estimatedReadyTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</h2>
+                  <h2 className="text-3xl font-bold">{new Date(order.estimated_ready_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</h2>
                   <p className="text-sm mt-2">in about <span className="font-bold">{diffMinutes}</span> mins</p>
                 </>
               )}
@@ -144,15 +144,15 @@ export const OrderTracking = () => {
               <h3 className="font-semibold mb-4 pb-2 border-b">Order Details</h3>
               <div className="space-y-3 text-sm mb-4">
                 {order.items.map(item => (
-                  <div key={item.meal.id} className="flex justify-between">
-                    <span className="text-muted-foreground">{item.quantity}x {item.meal.name}</span>
-                    <span className="font-medium">KES {item.meal.price * item.quantity}</span>
+                  <div key={item.menu_item.id} className="flex justify-between">
+                    <span className="text-muted-foreground">{item.quantity}x {item.menu_item.name}</span>
+                    <span className="font-medium">KES {item.menu_item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
               <div className="flex justify-between items-center pt-4 border-t">
                 <span className="font-semibold">Total</span>
-                <span className="font-bold text-lg">KES {order.totalAmount}</span>
+                <span className="font-bold text-lg">KES {order.total_amount}</span>
               </div>
             </CardContent>
           </Card>

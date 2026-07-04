@@ -50,7 +50,6 @@ export const Landing = () => {
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 pt-4">
               <Link to="/menu"><Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">Order Food</Button></Link>
-              <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">Learn More</Button>
             </motion.div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="relative hidden lg:block">
@@ -113,24 +112,6 @@ export const Landing = () => {
                   <div className="hidden md:block absolute top-6 left-1/2 w-full h-[2px] bg-border -z-10" />
                 )}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16">What Students Say</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((_, idx) => (
-              <Card key={idx} className="bg-muted/30 border-none">
-                <CardContent className="p-6">
-                  <div className="flex text-accent mb-4">{"★".repeat(5)}</div>
-                  <p className="italic text-muted-foreground mb-4">"This app completely changed my lunch breaks. No more waiting in lines for 30 minutes. I order during class and pick it up right after."</p>
-                  <p className="font-semibold">— Student {idx + 1}</p>
-                </CardContent>
-              </Card>
             ))}
           </div>
         </div>

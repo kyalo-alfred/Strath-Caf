@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../services/api';
-import { Order, Meal } from '../../types';
+import { Order, MenuItem } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -12,7 +12,7 @@ import { Input } from '../../components/ui/Input';
 export const CustomerDashboard = () => {
   const { user } = useAuth();
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [popularMeals, setPopularMeals] = useState<Meal[]>([]);
+  const [popularMeals, setPopularMeals] = useState<MenuItem[]>([]);
 
   useEffect(() => {
     // Fetch mock data
@@ -22,7 +22,7 @@ export const CustomerDashboard = () => {
           api.getOrders(),
           api.getMeals()
         ]);
-        setRecentOrders(ordersRes.filter(o => o.userId === user?.id).slice(0, 3));
+        setRecentOrders(ordersRes.filter(o => o.user === user?.id).slice(0, 3));
         setPopularMeals(mealsRes.slice(0, 4));
       } catch (err) {
         console.error(err);
@@ -45,7 +45,7 @@ export const CustomerDashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Welcome back, {user?.name?.split(' ')[0]}!</h1>
+        <h1 className="text-3xl font-bold">Welcome back, {user?.first_name}!</h1>
         <p className="text-muted-foreground mt-1">What would you like to eat today?</p>
       </div>
 
@@ -86,7 +86,7 @@ export const CustomerDashboard = () => {
               <Card key={meal.id} className="overflow-hidden hover:shadow-md transition-shadow group border-border/50">
                 <div className="flex items-center p-3 gap-4">
                   <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0">
-                    <img src={meal.imageUrl} alt={meal.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <img src={meal.image_url} alt={meal.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-sm truncate">{meal.name}</h4>
@@ -124,13 +124,13 @@ export const CustomerDashboard = () => {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-sm truncate">
-                          {order.items.map(i => i.meal.name).join(', ')}
+                          {order.items.map(i => i.menu_item.name).join(', ')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                        <span>{new Date(order.created_at).toLocaleDateString()}</span>
                         <span>•</span>
-                        <span>KES {order.totalAmount}</span>
+                        <span>KES {order.total_amount}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
@@ -141,7 +141,7 @@ export const CustomerDashboard = () => {
                           <Button size="sm" variant="outline" className="h-7 text-[10px] px-2">Track</Button>
                         </Link>
                       ) : (
-                        <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2" onClick={() => {/* Handle Reorder */}}>Reorder</Button>
+                        <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2" onClick={() => alert('TODO: Connect to POST /api/orders/ to duplicate order')}>Reorder</Button>
                       )}
                     </div>
                   </CardContent>

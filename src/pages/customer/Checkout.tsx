@@ -10,7 +10,8 @@ import { ArrowLeft, CheckCircle2, Loader2, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const Checkout = () => {
-  const { items, subtotal, clearCart } = useCart();
+  const { cart, clearCart, getCartTotal } = useCart();
+  const subtotal = getCartTotal();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [phone, setPhone] = useState(user?.phone || '07');
@@ -21,10 +22,10 @@ export const Checkout = () => {
   const total = subtotal + serviceFee;
 
   React.useEffect(() => {
-    if (items.length === 0 && paymentState === 'idle') {
+    if (cart.length === 0 && paymentState === 'idle') {
       navigate('/cart');
     }
-  }, [items, navigate, paymentState]);
+  }, [cart, navigate, paymentState]);
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +36,10 @@ export const Checkout = () => {
     try {
       // Create order via API
       const order = await api.createOrder({
-        userId: user?.id || 'guest',
-        customerName: user?.name || 'Guest',
-        items: [...items],
-        totalAmount: total,
+        user: user?.id || 'guest',
+        customer_name: user?.first_name || 'Guest',
+        items: cart,
+        total_amount: total,
       });
 
       // Simulate M-Pesa STK push delay
@@ -158,13 +159,13 @@ export const Checkout = () => {
               <h3 className="text-lg font-semibold mb-4 border-b pb-4">Order Summary</h3>
               
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {items.map((item) => (
-                  <div key={item.meal.id} className="flex justify-between items-center text-sm">
+                {cart.map((item) => (
+                  <div key={item.menu_item.id} className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2">
                       <span className="font-medium bg-background px-2 py-0.5 rounded text-xs">{item.quantity}x</span>
-                      <span className="truncate max-w-[150px] sm:max-w-[200px]">{item.meal.name}</span>
+                      <span className="truncate max-w-[150px] sm:max-w-[200px]">{item.menu_item.name}</span>
                     </div>
-                    <span className="font-medium">KES {item.meal.price * item.quantity}</span>
+                    <span className="font-medium">KES {item.menu_item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { mockMeals, mockOrders, mockNotifications, mockUsers } from './mockData';
-import { Meal, Order, Notification, User, OrderStatus } from '../types';
+import { MenuItem, Order, Notification, User, OrderStatus } from '../types';
 
 // Create an Axios instance
 const apiClient = axios.create({
@@ -23,14 +23,14 @@ export const api = {
   },
 
   // Meals
-  getMeals: async (): Promise<Meal[]> => {
+  getMeals: async (): Promise<MenuItem[]> => {
     await delay(500);
     return mockMeals;
   },
-  getMeal: async (id: string): Promise<Meal> => {
+  getMeal: async (id: string): Promise<MenuItem> => {
     await delay(300);
     const meal = mockMeals.find(m => m.id === id);
-    if (!meal) throw new Error('Meal not found');
+    if (!meal) throw new Error('MenuItem not found');
     return meal;
   },
 
@@ -51,8 +51,8 @@ export const api = {
       ...orderData,
       id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'Pending',
-      createdAt: new Date().toISOString(),
-      estimatedReadyTime: new Date(Date.now() + 20 * 60000).toISOString(),
+      created_at: new Date().toISOString(),
+      estimated_ready_time: new Date(Date.now() + 20 * 60000).toISOString(),
     } as Order;
     mockOrders.unshift(newOrder);
     return newOrder;
