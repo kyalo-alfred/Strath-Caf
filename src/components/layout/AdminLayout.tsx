@@ -56,8 +56,11 @@ export const AdminLayout = () => {
 
       <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur md:px-6 justify-end">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">Admin: {user?.name}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium hidden md:block">Welcome, {user?.first_name}</span>
+            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+              {user?.first_name?.charAt(0) || 'U'}
+            </div>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">

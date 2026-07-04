@@ -1,44 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Meal, CartItem } from '../types';
+import React, { createContext, useContext, useState } from 'react';
+import { MenuItem, OrderItem } from '../types';
 
 interface CartContextType {
-  items: CartItem[];
-  addToCart: (meal: Meal, quantity?: number) => void;
+  cart: OrderItem[];
+  addToCart: (menu_item: MenuItem, quantity?: number) => void;
   removeFromCart: (mealId: string) => void;
   updateQuantity: (mealId: string, quantity: number) => void;
   clearCart: () => void;
-  subtotal: number;
-  totalItems: number;
+  getCartTotal: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState<OrderItem[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
-
-  const addToCart = (meal: Meal, quantity = 1) => {
-    setItems(current => {
-      const existing = current.find(item => item.meal.id === meal.id);
+  const addToCart = (menu_item: MenuItem, quantity = 1) => {
+    setCart(current => {
+      const existing = current.find(item => item.menu_item.id === menu_item.id);
       if (existing) {
         return current.map(item =>
-          item.meal.id === meal.id
+          item.menu_item.id === menu_item.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...current, { meal, quantity }];
+      return [...current, { menu_item, quantity }];
     });
   };
 
   const removeFromCart = (mealId: string) => {
-    setItems(current => current.filter(item => item.meal.id !== mealId));
+    setCart(current => current.filter(item => item.menu_item.id !== mealId));
   };
 
   const updateQuantity = (mealId: string, quantity: number) => {
@@ -46,20 +38,21 @@ export const CartProvider: React.FC<{children: React.ReactNode}> = ({ children }
       removeFromCart(mealId);
       return;
     }
-    setItems(current =>
+    setCart(current =>
       current.map(item =>
-        item.meal.id === mealId ? { ...item, quantity } : item
+        item.menu_item.id === mealId ? { ...item, quantity } : item
       )
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => setCart([]);
 
-  const subtotal = items.reduce((sum, item) => sum + (item.meal.price * item.quantity), 0);
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => total + (item.menu_item.price * item.quantity), 0);
+  };
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, totalItems }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal }}>
       {children}
     </CartContext.Provider>
   );

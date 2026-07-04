@@ -33,7 +33,7 @@ export const StaffOrders = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold">#{order.id}</h3>
-                  <p className="text-muted-foreground">{order.customerName}</p>
+                  <p className="text-muted-foreground">{order.customer_name}</p>
                 </div>
                 {/* @ts-ignore */}
                 <Badge variant={order.status === 'Pending' ? 'warning' : 'primary'}>{order.status}</Badge>
@@ -41,8 +41,8 @@ export const StaffOrders = () => {
 
               <div className="space-y-2 mb-6">
                 {order.items.map(item => (
-                  <div key={item.meal.id} className="flex justify-between text-sm">
-                    <span><span className="font-bold">{item.quantity}x</span> {item.meal.name}</span>
+                  <div key={item.menu_item.id} className="flex justify-between text-sm">
+                    <span><span className="font-bold">{item.quantity}x</span> {item.menu_item.name}</span>
                   </div>
                 ))}
               </div>
@@ -50,7 +50,7 @@ export const StaffOrders = () => {
               <div className="flex items-center justify-between pt-4 border-t">
                 <div className="flex items-center text-muted-foreground text-sm">
                   <Clock className="w-4 h-4 mr-1" />
-                  {new Date(order.createdAt).toLocaleTimeString()}
+                  {new Date(order.created_at).toLocaleTimeString()}
                 </div>
                 <div className="flex gap-2">
                   {order.status === 'Pending' && (

@@ -24,7 +24,7 @@ export const Notifications = () => {
 
   const markAsRead = (id: string) => {
     setNotifications(current => 
-      current.map(n => n.id === id ? { ...n, isRead: true } : n)
+      current.map(n => n.id === id ? { ...n, is_read: true } : n)
     );
   };
 
@@ -33,14 +33,14 @@ export const Notifications = () => {
   };
 
   const markAllRead = () => {
-    setNotifications(current => current.map(n => ({ ...n, isRead: true })));
+    setNotifications(current => current.map(n => ({ ...n, is_read: true })));
   };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Notifications</h1>
-        {notifications.some(n => !n.isRead) && (
+        {notifications.some(n => !n.is_read) && (
           <Button variant="ghost" size="sm" onClick={markAllRead}>
             <CheckCircle className="w-4 h-4 mr-2" /> Mark all as read
           </Button>
@@ -59,20 +59,20 @@ export const Notifications = () => {
       ) : (
         <div className="space-y-4">
           {notifications.map(notif => (
-            <Card key={notif.id} className={cn("transition-colors overflow-hidden", !notif.isRead ? "bg-primary/5 border-primary/20" : "")}>
+            <Card key={notif.id} className={cn("transition-colors overflow-hidden", !notif.is_read ? "bg-primary/5 border-primary/20" : "")}>
               <CardContent className="p-4 flex gap-4">
                 <div className="shrink-0 mt-1">
-                  <div className={cn("w-2 h-2 rounded-full", !notif.isRead ? "bg-primary" : "bg-transparent")}></div>
+                  <div className={cn("w-2 h-2 rounded-full", !notif.is_read ? "bg-primary" : "bg-transparent")}></div>
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold">{notif.title}</h4>
                   <p className="text-sm text-muted-foreground mt-1">{notif.message}</p>
                   <p className="text-xs text-muted-foreground/60 mt-2">
-                    {new Date(notif.createdAt).toLocaleString()}
+                    {new Date(notif.created_at).toLocaleString()}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 shrink-0">
-                  {!notif.isRead && (
+                  {!notif.is_read && (
                     <Button variant="ghost" size="icon" onClick={() => markAsRead(notif.id)} title="Mark as read">
                       <CheckCircle className="w-4 h-4 text-primary" />
                     </Button>

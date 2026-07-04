@@ -10,7 +10,8 @@ import { motion } from 'framer-motion';
 
 export const CustomerLayout = () => {
   const { user, logout } = useAuth();
-  const { totalItems } = useCart();
+  const { cart } = useCart();
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -56,10 +57,10 @@ export const CustomerLayout = () => {
         <div className="mt-auto border-t pt-4">
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-              {user?.name?.charAt(0) || 'U'}
+              {user?.first_name?.charAt(0) || 'U'}
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{user?.name}</span>
+              <span className="text-sm font-medium">{user?.first_name}</span>
               <span className="text-xs text-muted-foreground truncate w-32">{user?.email}</span>
             </div>
           </div>

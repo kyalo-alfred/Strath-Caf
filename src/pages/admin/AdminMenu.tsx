@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../services/api';
-import { Meal } from '../../types';
+import { MenuItem } from '../../types';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -8,7 +8,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 
 export const AdminMenu = () => {
-  const [meals, setMeals] = useState<Meal[]>([]);
+  const [meals, setMeals] = useState<MenuItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export const AdminMenu = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">Menu Management</h1>
-        <Button className="gap-2"><Plus className="w-4 h-4" /> Add New Meal</Button>
+        <Button className="gap-2"><Plus className="w-4 h-4" /> Add New MenuItem</Button>
       </div>
 
       <div className="flex gap-4 items-center bg-card p-4 rounded-xl border">
@@ -41,7 +41,7 @@ export const AdminMenu = () => {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted text-muted-foreground border-b">
               <tr>
-                <th className="px-6 py-4 font-medium">Meal</th>
+                <th className="px-6 py-4 font-medium">MenuItem</th>
                 <th className="px-6 py-4 font-medium">Category</th>
                 <th className="px-6 py-4 font-medium">Price</th>
                 <th className="px-6 py-4 font-medium">Status</th>
@@ -54,7 +54,7 @@ export const AdminMenu = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded overflow-hidden shrink-0">
-                        <img src={meal.imageUrl} alt={meal.name} className="w-full h-full object-cover" />
+                        <img src={meal.image_url} alt={meal.name} className="w-full h-full object-cover" />
                       </div>
                       <span className="font-semibold">{meal.name}</span>
                     </div>
@@ -63,8 +63,8 @@ export const AdminMenu = () => {
                   <td className="px-6 py-4 font-medium">KES {meal.price}</td>
                   <td className="px-6 py-4">
                     {/* @ts-ignore */}
-                    <Badge variant={meal.isAvailable ? 'success' : 'destructive'}>
-                      {meal.isAvailable ? 'Available' : 'Sold Out'}
+                    <Badge variant={meal.is_available ? 'success' : 'destructive'}>
+                      {meal.is_available ? 'Available' : 'Sold Out'}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 text-right">

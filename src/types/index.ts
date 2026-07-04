@@ -2,22 +2,29 @@ export type Role = 'customer' | 'staff' | 'admin';
 
 export interface User {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: Role;
   phone?: string;
-  studentNumber?: string;
+  student_number?: string;
 }
 
-export interface Meal {
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface MenuItem {
   id: string;
   name: string;
   description: string;
   price: number;
-  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Drinks';
-  imageUrl: string;
-  isAvailable: boolean;
-  prepTimeMinutes: number;
+  category: string; 
+  image_url: string;
+  is_available: boolean;
+  prep_time_minutes: number;
   ingredients?: string[];
   nutrition?: {
     calories: number;
@@ -27,29 +34,42 @@ export interface Meal {
   };
 }
 
-export interface CartItem {
-  meal: Meal;
+export interface OrderItem {
+  id?: string;
+  order?: string;
+  menu_item: MenuItem;
   quantity: number;
+  price_at_time?: number;
 }
 
 export type OrderStatus = 'Pending' | 'Preparing' | 'Ready' | 'Collected' | 'Cancelled';
 
 export interface Order {
   id: string;
-  userId: string;
-  customerName: string;
-  items: CartItem[];
-  totalAmount: number;
+  user: string;
+  customer_name: string;
+  items: OrderItem[];
+  total_amount: number;
   status: OrderStatus;
-  createdAt: string;
-  estimatedReadyTime: string;
+  created_at: string;
+  estimated_ready_time: string;
+}
+
+export interface Payment {
+  id: string;
+  order: string;
+  transaction_id: string;
+  amount: number;
+  status: 'Pending' | 'Completed' | 'Failed';
+  phone_number: string;
+  created_at: string;
 }
 
 export interface Notification {
   id: string;
-  userId: string;
+  user: string;
   title: string;
   message: string;
-  isRead: boolean;
-  createdAt: string;
+  is_read: boolean;
+  created_at: string;
 }
