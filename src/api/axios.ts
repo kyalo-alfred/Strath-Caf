@@ -7,9 +7,7 @@ export const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-  },
-  // Automatically send cookies (e.g., CSRF token) across site origins if configured
-  withCredentials: true,
+  }
 });
 
 // Request Interceptor: Attach JWT Token if available
