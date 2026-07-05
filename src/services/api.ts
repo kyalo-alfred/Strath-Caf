@@ -1,10 +1,24 @@
 import { axiosInstance } from '../api/axios';
-import { MenuItem, Order, Notification, OrderStatus, User, Category } from '../types';
+import { MenuItem, Order, Notification, OrderStatus, User, Category, PaginatedResponse } from '../types';
 
 export const api = {
+  // Auth & Profile
+  getProfile: async (): Promise<User> => {
+    const response = await axiosInstance.get('auth/me/');
+    return response.data;
+  },
+  updateProfile: async (data: Partial<User>): Promise<User> => {
+    const response = await axiosInstance.patch('auth/me/', data);
+    return response.data;
+  },
+  updatePassword: async (data: any): Promise<{ message: string }> => {
+    const response = await axiosInstance.post('auth/me/password/', data);
+    return response.data;
+  },
+
   // Meals & Categories
-  getMeals: async (): Promise<MenuItem[]> => {
-    const response = await axiosInstance.get('catalog/menu-items/');
+  getMeals: async (params?: any): Promise<PaginatedResponse<MenuItem>> => {
+    const response = await axiosInstance.get('catalog/menu-items/', { params });
     return response.data;
   },
   getMeal: async (id: string): Promise<MenuItem> => {
@@ -23,14 +37,14 @@ export const api = {
     const response = await axiosInstance.patch(`catalog/menu-items/${id}/`, { is_available: false });
     return response.data;
   },
-  getCategories: async (): Promise<Category[]> => {
-    const response = await axiosInstance.get('catalog/categories/');
+  getCategories: async (params?: any): Promise<PaginatedResponse<Category>> => {
+    const response = await axiosInstance.get('catalog/categories/', { params });
     return response.data;
   },
 
   // Orders
-  getOrders: async (): Promise<Order[]> => {
-    const response = await axiosInstance.get('orders/');
+  getOrders: async (params?: any): Promise<PaginatedResponse<Order>> => {
+    const response = await axiosInstance.get('orders/', { params });
     return response.data;
   },
   getOrder: async (id: string): Promise<Order> => {
@@ -56,8 +70,8 @@ export const api = {
   },
 
   // Notifications
-  getNotifications: async (): Promise<Notification[]> => {
-    const response = await axiosInstance.get('notifications/');
+  getNotifications: async (params?: any): Promise<PaginatedResponse<Notification>> => {
+    const response = await axiosInstance.get('notifications/', { params });
     return response.data;
   },
   markNotificationRead: async (id: number | string): Promise<void> => {
@@ -66,13 +80,22 @@ export const api = {
   markAllNotificationsRead: async (): Promise<void> => {
     await axiosInstance.patch('notifications/mark_all_read/');
   },
+  deleteNotification: async (id: number | string): Promise<void> => {
+    await axiosInstance.delete(`notifications/${id}/`);
+  },
 
   // Users (Admin)
-  getUsers: async (): Promise<User[]> => {
-    const response = await axiosInstance.get('auth/users/');
+  getUsers: async (params?: any): Promise<PaginatedResponse<User>> => {
+    const response = await axiosInstance.get('auth/users/', { params });
     return response.data;
   },
   deactivateUser: async (id: number | string): Promise<void> => {
     await axiosInstance.patch(`auth/users/${id}/deactivate/`);
+  },
+
+  // Reports
+  getReports: async (): Promise<any> => {
+    const response = await axiosInstance.get('admin/reports/');
+    return response.data;
   }
 };

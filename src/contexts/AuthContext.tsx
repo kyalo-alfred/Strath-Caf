@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Role } from '../types';
 import { authApi } from '../api/authApi';
+import { api } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,28 +19,44 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage for existing session
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('access_token');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        try {
+          const profile = await api.getProfile();
+          setUser(profile);
+          localStorage.setItem('user', JSON.stringify(profile));
+        } catch (e) {
+          console.error("Failed to fetch fresh profile", e);
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) setUser(JSON.parse(storedUser));
+        }
+      }
+      setIsLoading(false);
+    };
+    initAuth();
   }, []);
 
   const login = async (email: string, pass: string): Promise<User> => {
     setIsLoading(true);
     try {
       const response = await authApi.login(email, pass);
-      const { user: userData, access, refresh } = response;
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      const { access, refresh } = response;
       localStorage.setItem('access_token', access);
       if (refresh) localStorage.setItem('refresh_token', refresh);
-      return userData;
+      
+      const profile = await api.getProfile();
+      setUser(profile);
+      localStorage.setItem('user', JSON.stringify(profile));
+      return profile;
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   const logout = async () => {
@@ -55,7 +73,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

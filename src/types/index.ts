@@ -1,3 +1,10 @@
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export type Role = 'customer' | 'server' | 'admin';
 
 export interface User {
@@ -42,7 +49,7 @@ export interface OrderItem {
   price_at_time?: number;
 }
 
-export type OrderStatus = 'Pending' | 'Preparing' | 'Ready' | 'Collected' | 'Cancelled';
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 export interface Order {
   id: string;
@@ -53,6 +60,9 @@ export interface Order {
   status: OrderStatus;
   created_at: string;
   estimated_ready_time: string;
+  payment_status: string | null;
+  payment_reference: string | null;
+  is_paid: boolean;
 }
 
 export interface Payment {
