@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     
     # Local apps will be added here in later phases
     'accounts',
+    'catalog',
 ]
 
 MIDDLEWARE = [
