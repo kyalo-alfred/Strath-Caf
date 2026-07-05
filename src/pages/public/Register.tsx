@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/Input';
 import { authApi } from '../../api/authApi';
 
 export const Register = () => {
-  const [role, setRole] = useState<'customer' | 'server'>('customer');
+  const [role, setRole] = useState<'customer' | 'server' | 'admin'>('customer');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -63,6 +63,13 @@ export const Register = () => {
             onClick={() => setRole('server')}
           >
             Server
+          </button>
+          <button 
+            type="button"
+            className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${role === 'admin' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setRole('admin')}
+          >
+            Administrator
           </button>
         </div>
 

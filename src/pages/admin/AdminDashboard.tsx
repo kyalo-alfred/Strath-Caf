@@ -1,24 +1,36 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../services/api';
+import { calculateTotalRevenue, calculateTotalOrders, calculateActiveUsers, calculateAvgWaitTime } from '../../utils/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Users, TrendingUp, DollarSign, Clock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'Mon', revenue: 4000, orders: 24 },
-  { name: 'Tue', revenue: 3000, orders: 18 },
-  { name: 'Wed', revenue: 2000, orders: 12 },
-  { name: 'Thu', revenue: 2780, orders: 16 },
-  { name: 'Fri', revenue: 1890, orders: 10 },
-  { name: 'Sat', revenue: 2390, orders: 14 },
-  { name: 'Sun', revenue: 3490, orders: 20 },
-];
-
 export const AdminDashboard = () => {
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: api.getOrders,
+  });
+
+  const { data: users = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: api.getUsers,
+  });
+
+  if (ordersLoading || usersLoading) {
+    return <div className="p-8 text-center text-muted-foreground">Loading dashboard analytics...</div>;
+  }
+
+  const revenue = calculateTotalRevenue(orders);
+  const totalOrders = calculateTotalOrders(orders);
+  const activeUsers = calculateActiveUsers(users);
+  const avgWaitTime = calculateAvgWaitTime(orders);
+
   const stats = [
-    { title: 'Total Revenue', value: 'KES 24,560', icon: DollarSign, trend: '+12.5%' },
-    { title: 'Total Orders', value: '114', icon: TrendingUp, trend: '+8.2%' },
-    { title: 'Active Users', value: '342', icon: Users, trend: '+2.1%' },
-    { title: 'Avg Wait Time', value: '14 mins', icon: Clock, trend: '-1.5%' },
+    { title: 'Total Revenue', value: `KES ${revenue.toLocaleString()}`, icon: DollarSign, trend: '+12.5%' },
+    { title: 'Total Orders', value: totalOrders.toString(), icon: TrendingUp, trend: '+8.2%' },
+    { title: 'Active Users', value: activeUsers.toString(), icon: Users, trend: '+2.1%' },
+    { title: 'Avg Wait Time', value: avgWaitTime, icon: Clock, trend: '-1.5%' },
   ];
 
   return (

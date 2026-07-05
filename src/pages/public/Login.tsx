@@ -8,7 +8,6 @@ import { Role } from '../../types';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();

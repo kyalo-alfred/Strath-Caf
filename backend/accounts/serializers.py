@@ -37,13 +37,25 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'first_name', 'last_name', 'phone', 'university_id', 'role']
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            phone=validated_data.get('phone', ''),
-            university_id=validated_data.get('university_id', ''),
-            role=validated_data.get('role', CustomUser.Role.CUSTOMER)
-        )
+        role = validated_data.get('role', CustomUser.Role.CUSTOMER)
+        
+        if role == CustomUser.Role.ADMIN:
+            user = CustomUser.objects.create_superuser(
+                email=validated_data['email'],
+                password=validated_data['password'],
+                first_name=validated_data.get('first_name', ''),
+                last_name=validated_data.get('last_name', ''),
+                phone=validated_data.get('phone', ''),
+                university_id=validated_data.get('university_id', '')
+            )
+        else:
+            user = CustomUser.objects.create_user(
+                email=validated_data['email'],
+                password=validated_data['password'],
+                first_name=validated_data.get('first_name', ''),
+                last_name=validated_data.get('last_name', ''),
+                phone=validated_data.get('phone', ''),
+                university_id=validated_data.get('university_id', ''),
+                role=role
+            )
         return user
