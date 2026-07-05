@@ -59,3 +59,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 role=role
             )
         return user
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Current password is incorrect.")
+        return value

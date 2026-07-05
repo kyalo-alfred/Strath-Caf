@@ -9,12 +9,18 @@ from .services import MpesaService
 class PaymentViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin, viewsets.mixins.RetrieveModelMixin):
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ['status', 'order']
+    ordering_fields = ['created_at', 'amount']
+    search_fields = ['transaction_id', 'phone_number']
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Payment.objects.none()
+            
         user = self.request.user
         if user.role == 'admin':
-            return Payment.objects.all().order_by('-created_at')
-        return Payment.objects.filter(user=user).order_by('-created_at')
+            return Payment.objects.all()
+        return Payment.objects.filter(user=user)
 
     @action(detail=False, methods=['post'])
     def stk_push(self, request):

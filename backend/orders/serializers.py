@@ -20,14 +20,26 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
     user_email = serializers.ReadOnlyField(source='user.email')
     customer_name = serializers.SerializerMethodField()
+    payment_status = serializers.SerializerMethodField()
+    payment_reference = serializers.SerializerMethodField()
+    is_paid = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'user_email', 'customer_name', 'status', 'total_amount', 'items', 'created_at', 'updated_at']
-        read_only_fields = ['user', 'total_amount', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'user_email', 'customer_name', 'status', 'total_amount', 'items', 'created_at', 'updated_at', 'payment_status', 'payment_reference', 'is_paid']
+        read_only_fields = ['user', 'total_amount', 'status', 'created_at', 'updated_at', 'payment_status', 'payment_reference', 'is_paid']
 
     def get_customer_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip()
+
+    def get_payment_status(self, obj):
+        return obj.payment.status if hasattr(obj, 'payment') else None
+
+    def get_payment_reference(self, obj):
+        return obj.payment.transaction_id if hasattr(obj, 'payment') else None
+
+    def get_is_paid(self, obj):
+        return obj.payment.status == 'success' if hasattr(obj, 'payment') else False
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

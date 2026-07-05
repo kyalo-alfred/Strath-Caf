@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from orders.views import AdminReportsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,4 +17,7 @@ urlpatterns = [
     path('api/v1/orders/', include('orders.urls')),
     path('api/v1/payments/', include('payments.urls')),
     path('api/v1/notifications/', include('notifications.urls')),
+    
+    # Admin Reports
+    path('api/v1/admin/reports/', AdminReportsView.as_view(), name='admin-reports'),
 ]

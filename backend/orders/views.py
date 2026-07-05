@@ -1,24 +1,29 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.db.models import Sum, Count
+from django.utils import timezone
 from .models import Order
 from .serializers import OrderSerializer
 from accounts.models import CustomUser
+from accounts.permissions import IsAdmin
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ['status', 'user']
+    ordering_fields = ['created_at', 'total_amount']
+    search_fields = ['id', 'user__first_name', 'user__last_name']
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Order.objects.none()
+            
         user = self.request.user
-        if user.role == CustomUser.Role.ADMIN:
-            return Order.objects.all().order_by('-created_at')
-        elif user.role == CustomUser.Role.SERVER:
-            # Servers see all orders that need attention (not completed/cancelled)
-            return Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).order_by('created_at')
+        if user.role in [CustomUser.Role.ADMIN, CustomUser.Role.SERVER]:
+            return Order.objects.all()
         else:
-            # Customers only see their own orders
-            return Order.objects.filter(user=user).order_by('-created_at')
+            return Order.objects.filter(user=user)
 
     @action(detail=True, methods=['patch'])
     def update_status(self, request, pk=None):
@@ -38,3 +43,25 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(order)
         return Response(serializer.data)
+
+class AdminReportsView(views.APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        today = timezone.now().date()
+        today_orders = Order.objects.filter(created_at__date=today)
+        
+        total_revenue = Order.objects.filter(payment__status='success').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        today_revenue = today_orders.filter(payment__status='success').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        recent_orders = OrderSerializer(Order.objects.all().order_by('-created_at')[:5], many=True).data
+        
+        return Response({
+            "summary": {
+                "total_orders": Order.objects.count(),
+                "today_orders": today_orders.count(),
+                "total_revenue": total_revenue,
+                "today_revenue": today_revenue
+            },
+            "recent_orders": recent_orders
+        })
