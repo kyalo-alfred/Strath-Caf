@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
-    # API endpoints will be added here
+    # API endpoints
+    path('api/v1/', include('accounts.urls')),
 ]

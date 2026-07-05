@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     
     # Local apps will be added here in later phases
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +117,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if os.getenv('CORS_ALLOWED_ORIGINS') else []
