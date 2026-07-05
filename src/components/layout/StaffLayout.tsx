@@ -11,9 +11,9 @@ export const StaffLayout = () => {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/staff/dashboard', icon: LayoutDashboard },
-    { name: 'Incoming Orders', href: '/staff/orders', icon: ListTodo },
-    { name: 'Queue Board', href: '/staff/queue', icon: CheckCircle },
+    { name: 'Dashboard', href: '/server/dashboard', icon: LayoutDashboard },
+    { name: 'Incoming Orders', href: '/server/orders', icon: ListTodo },
+    { name: 'Queue Board', href: '/server/queue', icon: CheckCircle },
   ];
 
   const handleLogout = () => {
@@ -25,7 +25,7 @@ export const StaffLayout = () => {
     <div className="min-h-screen bg-muted/30 flex flex-col md:flex-row">
       <aside className="hidden md:flex flex-col w-64 border-r bg-card px-4 py-6 fixed h-full z-10">
         <div className="flex items-center gap-2 px-2 mb-8">
-          <span className="text-2xl font-bold text-secondary">Staff Portal</span>
+          <span className="text-2xl font-bold text-secondary">Server Portal</span>
         </div>
         <nav className="flex-1 space-y-2">
           {navigation.map((item) => {
@@ -56,7 +56,7 @@ export const StaffLayout = () => {
       <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur md:px-6 justify-between md:justify-end">
           <div className="flex items-center gap-2 md:hidden">
-            <span className="text-xl font-bold text-secondary">Staff</span>
+            <h1 className="text-xl font-bold tracking-tight text-primary">Strath-Caf Server</h1>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium hidden md:block">{user?.first_name}</span>

@@ -8,7 +8,7 @@ import { Role } from '../../types';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'customer' | 'server' | 'admin'>('customer');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -17,11 +17,11 @@ export const Login = () => {
     e.preventDefault();
     try {
       setError('');
-      await login(email, password, role);
+      const loggedInUser = await login(email, password);
       
-      // Redirect based on role
-      if (role === 'admin') navigate('/admin/dashboard');
-      else if (role === 'server') navigate('/staff/dashboard');
+      // Redirect based on actual backend role
+      if (loggedInUser.role === 'admin') navigate('/admin/dashboard');
+      else if (loggedInUser.role === 'server') navigate('/server/dashboard');
       else navigate('/dashboard');
     } catch (err) {
       setError('Invalid credentials or network error.');
@@ -50,29 +50,7 @@ export const Login = () => {
             <p className="text-sm text-muted-foreground">Select your role and enter your credentials.</p>
           </div>
 
-          <div className="flex bg-muted p-1 rounded-lg mb-6">
-            <button 
-              type="button"
-              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'customer' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => setRole('customer')}
-            >
-              Student
-            </button>
-            <button 
-              type="button"
-              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'server' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => setRole('server')}
-            >
-              Staff
-            </button>
-            <button 
-              type="button"
-              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'admin' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => setRole('admin')}
-            >
-              Administrator
-            </button>
-          </div>
+
 
           {error && <div className="mb-4 p-3 rounded bg-danger/10 text-danger text-sm">{error}</div>}
 

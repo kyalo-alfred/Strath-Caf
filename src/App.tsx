@@ -45,7 +45,7 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
-    if (user.role === 'server') return <Navigate to="/staff/dashboard" replace />;
+    if (user.role === 'server') return <Navigate to="/server/dashboard" replace />;
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -78,11 +78,11 @@ function App() {
               <Route path="/profile" element={<Profile />} />
             </Route>
 
-            {/* Staff Routes */}
+            {/* Server Routes */}
             <Route element={<ProtectedRoute allowedRoles={['server']}><StaffLayout /></ProtectedRoute>}>
-              <Route path="/staff/dashboard" element={<StaffDashboard />} />
-              <Route path="/staff/orders" element={<StaffOrders />} />
-              <Route path="/staff/queue" element={<StaffQueue />} />
+              <Route path="/server/dashboard" element={<StaffDashboard />} />
+              <Route path="/server/orders" element={<StaffOrders />} />
+              <Route path="/server/queue" element={<StaffQueue />} />
             </Route>
 
             {/* Admin Routes */}

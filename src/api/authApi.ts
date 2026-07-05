@@ -2,15 +2,7 @@ import { axiosInstance } from './axios';
 import { User } from '../types';
 
 export const authApi = {
-  loginCustomer: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
-    const response = await axiosInstance.post('auth/login/', { email, password: pass });
-    return response.data;
-  },
-  loginServer: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
-    const response = await axiosInstance.post('auth/login/', { email, password: pass });
-    return response.data;
-  },
-  loginAdmin: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
+  login: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
     const response = await axiosInstance.post('auth/login/', { email, password: pass });
     return response.data;
   },

@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, pass: string, role: Role) => Promise<void>;
+  login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -26,23 +26,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, pass: string, role: Role) => {
+  const login = async (email: string, pass: string): Promise<User> => {
     setIsLoading(true);
     try {
-      let response;
-      if (role === 'customer') {
-        response = await authApi.loginCustomer(email, pass);
-      } else if (role === 'server') {
-        response = await authApi.loginServer(email, pass);
-      } else {
-        response = await authApi.loginAdmin(email, pass);
-      }
-
+      const response = await authApi.login(email, pass);
       const { user: userData, access, refresh } = response;
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('access_token', access);
       if (refresh) localStorage.setItem('refresh_token', refresh);
+      return userData;
     } finally {
       setIsLoading(false);
     }

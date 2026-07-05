@@ -62,7 +62,7 @@ export const Register = () => {
             className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${role === 'server' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setRole('server')}
           >
-            Staff
+            Server
           </button>
         </div>
 
