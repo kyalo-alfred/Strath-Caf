@@ -34,15 +34,21 @@ export const Checkout = () => {
     setPaymentState('processing');
     
     try {
-      // Create order via API
+      // Format items for Django backend
+      const backendItems = cart.map(item => ({
+        menu_item_id: item.menu_item.id,
+        quantity: item.quantity
+      }));
+
+      // Create order via API (Backend handles total calculation and sets user from JWT)
       const order = await api.createOrder({
-        user: user?.id || 'guest',
-        customer_name: user?.first_name || 'Guest',
-        items: cart,
-        total_amount: total,
+        items: backendItems
       });
 
-      // Simulate M-Pesa STK push delay
+      // Initiate M-Pesa STK push via API
+      await api.initiatePayment(order.id, phone);
+
+      // Simulate waiting for callback (since we don't have WebSockets set up to listen yet)
       setTimeout(() => {
         setPaymentState('success');
         setNewOrderId(order.id);
@@ -50,6 +56,7 @@ export const Checkout = () => {
       }, 3000);
 
     } catch (error) {
+      console.error(error);
       setPaymentState('error');
       setTimeout(() => setPaymentState('idle'), 3000);
     }

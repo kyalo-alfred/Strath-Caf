@@ -1,73 +1,53 @@
-import axios from 'axios';
-import { mockMeals, mockOrders, mockNotifications, mockUsers } from './mockData';
-import { MenuItem, Order, Notification, User, OrderStatus } from '../types';
-
-// Create an Axios instance
-const apiClient = axios.create({
-  baseURL: 'http://localhost:8000/api', // Placeholder for Django backend
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { axiosInstance } from '../api/axios';
+import { MenuItem, Order, Notification, OrderStatus } from '../types';
 
 export const api = {
-  // Auth
-  login: async (email: string, password: string):Promise<{user: User, token: string}> => {
-    await delay(800);
-    const user = mockUsers.find(u => u.email === email);
-    if (!user) throw new Error('Invalid credentials');
-    return { user, token: 'mock-jwt-token' };
-  },
-
   // Meals
   getMeals: async (): Promise<MenuItem[]> => {
-    await delay(500);
-    return mockMeals;
+    const response = await axiosInstance.get('catalog/menu-items/');
+    return response.data;
   },
   getMeal: async (id: string): Promise<MenuItem> => {
-    await delay(300);
-    const meal = mockMeals.find(m => m.id === id);
-    if (!meal) throw new Error('MenuItem not found');
-    return meal;
+    const response = await axiosInstance.get(`catalog/menu-items/${id}/`);
+    return response.data;
   },
 
   // Orders
   getOrders: async (): Promise<Order[]> => {
-    await delay(600);
-    return mockOrders;
+    const response = await axiosInstance.get('orders/');
+    return response.data;
   },
   getOrder: async (id: string): Promise<Order> => {
-    await delay(400);
-    const order = mockOrders.find(o => o.id === id);
-    if (!order) throw new Error('Order not found');
-    return order;
+    const response = await axiosInstance.get(`orders/${id}/`);
+    return response.data;
   },
-  createOrder: async (orderData: Partial<Order>): Promise<Order> => {
-    await delay(1000);
-    const newOrder: Order = {
-      ...orderData,
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      status: 'Pending',
-      created_at: new Date().toISOString(),
-      estimated_ready_time: new Date(Date.now() + 20 * 60000).toISOString(),
-    } as Order;
-    mockOrders.unshift(newOrder);
-    return newOrder;
+  createOrder: async (orderData: any): Promise<Order> => {
+    const response = await axiosInstance.post('orders/', orderData);
+    return response.data;
   },
   updateOrderStatus: async (id: string, status: OrderStatus): Promise<Order> => {
-    await delay(500);
-    const order = mockOrders.find(o => o.id === id);
-    if (!order) throw new Error('Order not found');
-    order.status = status;
-    return order;
+    const response = await axiosInstance.patch(`orders/${id}/update_status/`, { status });
+    return response.data;
+  },
+
+  // Payments
+  initiatePayment: async (orderId: number | string, phoneNumber: string) => {
+    const response = await axiosInstance.post('payments/stk_push/', {
+      order_id: orderId,
+      phone_number: phoneNumber
+    });
+    return response.data;
   },
 
   // Notifications
   getNotifications: async (): Promise<Notification[]> => {
-    await delay(400);
-    return mockNotifications;
+    const response = await axiosInstance.get('notifications/');
+    return response.data;
   },
+  markNotificationRead: async (id: number | string): Promise<void> => {
+    await axiosInstance.patch(`notifications/${id}/mark_read/`);
+  },
+  markAllNotificationsRead: async (): Promise<void> => {
+    await axiosInstance.patch('notifications/mark_all_read/');
+  }
 };
