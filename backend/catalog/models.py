@@ -20,6 +20,7 @@ class MenuItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.URLField(blank=True, null=True)
     is_available = models.BooleanField(default=True)
+    prep_time_minutes = models.IntegerField(default=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

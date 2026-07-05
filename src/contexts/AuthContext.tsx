@@ -32,8 +32,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       let response;
       if (role === 'customer') {
         response = await authApi.loginCustomer(email, pass);
-      } else if (role === 'staff') {
-        response = await authApi.loginStaff(email, pass);
+      } else if (role === 'server') {
+        response = await authApi.loginServer(email, pass);
       } else {
         response = await authApi.loginAdmin(email, pass);
       }

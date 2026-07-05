@@ -1,4 +1,4 @@
-export type Role = 'customer' | 'staff' | 'admin';
+export type Role = 'customer' | 'server' | 'admin';
 
 export interface User {
   id: string;
@@ -7,7 +7,7 @@ export interface User {
   email: string;
   role: Role;
   phone?: string;
-  student_number?: string;
+  university_id?: string;
 }
 
 export interface Category {

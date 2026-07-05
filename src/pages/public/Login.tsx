@@ -8,7 +8,7 @@ import { Role } from '../../types';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role>('customer');
+  const [role, setRole] = useState<'customer' | 'server' | 'admin'>('customer');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export const Login = () => {
       
       // Redirect based on role
       if (role === 'admin') navigate('/admin/dashboard');
-      else if (role === 'staff') navigate('/staff/dashboard');
+      else if (role === 'server') navigate('/staff/dashboard');
       else navigate('/dashboard');
     } catch (err) {
       setError('Invalid credentials or network error.');
@@ -60,8 +60,8 @@ export const Login = () => {
             </button>
             <button 
               type="button"
-              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'staff' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => setRole('staff')}
+              className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors ${role === 'server' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setRole('server')}
             >
               Staff
             </button>

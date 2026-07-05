@@ -5,11 +5,11 @@ import { Input } from '../../components/ui/Input';
 import { authApi } from '../../api/authApi';
 
 export const Register = () => {
-  const [role, setRole] = useState<'customer' | 'staff'>('customer');
+  const [role, setRole] = useState<'customer' | 'server'>('customer');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [student_number, setStudentNumber] = useState('');
+  const [university_id, setUniversityId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
@@ -25,13 +25,13 @@ export const Register = () => {
         email,
         password,
         role,
-        ...(role === 'customer' ? { student_number: student_number } : {})
+        ...(role === 'customer' ? { university_id } : {})
       };
 
       if (role === 'customer') {
         await authApi.registerCustomer(payload);
       } else {
-        await authApi.registerStaff(payload);
+        await authApi.registerServer(payload);
       }
       
       // Redirect to login after successful registration
@@ -59,8 +59,8 @@ export const Register = () => {
           </button>
           <button 
             type="button"
-            className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${role === 'staff' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-            onClick={() => setRole('staff')}
+            className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${role === 'server' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setRole('server')}
           >
             Staff
           </button>
@@ -86,7 +86,7 @@ export const Register = () => {
           {role === 'customer' && (
             <div>
               <label className="block text-sm font-medium mb-1">Student ID</label>
-              <Input required placeholder="123456" value={student_number} onChange={e => setStudentNumber(e.target.value)} />
+              <Input required placeholder="123456" value={university_id} onChange={e => setUniversityId(e.target.value)} />
             </div>
           )}
           <div>

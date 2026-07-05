@@ -15,6 +15,7 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    estimated_ready_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.email} - {self.get_status_display()}"

@@ -6,7 +6,7 @@ export const authApi = {
     const response = await axiosInstance.post('auth/login/', { email, password: pass });
     return response.data;
   },
-  loginStaff: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
+  loginServer: async (email: string, pass: string): Promise<{ user: User, access: string, refresh: string }> => {
     const response = await axiosInstance.post('auth/login/', { email, password: pass });
     return response.data;
   },
@@ -18,7 +18,7 @@ export const authApi = {
     const response = await axiosInstance.post('auth/register/', data);
     return response.data;
   },
-  registerStaff: async (data: Partial<User>): Promise<{ user: User }> => {
+  registerServer: async (data: Partial<User>): Promise<{ user: User }> => {
     const response = await axiosInstance.post('auth/register/', data);
     return response.data;
   },

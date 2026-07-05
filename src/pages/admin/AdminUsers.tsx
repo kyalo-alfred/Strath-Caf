@@ -44,10 +44,10 @@ export const AdminUsers = () => {
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{u.email}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5">
-                        {u.role === 'admin' ? <Shield className="w-4 h-4 text-accent" /> :
-                         u.role === 'staff' ? <User className="w-4 h-4 text-primary" /> :
-                         <GraduationCap className="w-4 h-4 text-muted-foreground" />}
+                      <div className="flex items-center gap-2">
+                        {u.role === 'admin' ? <Shield className="w-4 h-4 text-danger" /> :
+                         u.role === 'server' ? <User className="w-4 h-4 text-primary" /> :
+                         <User className="w-4 h-4 text-muted-foreground" />}
                         <span className="capitalize">{u.role}</span>
                       </div>
                     </td>

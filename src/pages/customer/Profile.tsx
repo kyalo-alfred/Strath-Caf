@@ -10,9 +10,9 @@ export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.first_name || '',
-    email: user?.email || '',
+    last_name: user?.last_name || 'Doe',
     phone: user?.phone || '0712345678',
-    student_number: user?.student_number || '123456',
+    university_id: user?.university_id || '123456',
   });
 
   const handleSave = () => {
@@ -81,7 +81,7 @@ export const Profile = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Student/Staff Number</label>
                   <Input 
-                    value={formData.student_number} 
+                    value={formData.university_id} 
                     disabled
                     className="bg-muted"
                   />

@@ -19,14 +19,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
     user_email = serializers.ReadOnlyField(source='user.email')
-    user_name = serializers.SerializerMethodField()
+    customer_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'user_email', 'user_name', 'status', 'total_amount', 'items', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'user_email', 'customer_name', 'status', 'total_amount', 'items', 'created_at', 'updated_at']
         read_only_fields = ['user', 'total_amount', 'status', 'created_at', 'updated_at']
 
-    def get_user_name(self, obj):
+    def get_customer_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip()
 
     def create(self, validated_data):
