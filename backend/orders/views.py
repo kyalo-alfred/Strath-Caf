@@ -37,6 +37,21 @@ class OrderViewSet(viewsets.ModelViewSet):
         new_status = request.data.get('status')
         if new_status not in dict(Order.Status.choices):
             return Response({"detail": "Invalid status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Enforce valid forward state transitions
+        valid_transitions = {
+            'pending': ['preparing', 'cancelled'],
+            'preparing': ['ready', 'cancelled'],
+            'ready': ['completed'],
+            'completed': [],
+            'cancelled': []
+        }
+        
+        if new_status not in valid_transitions.get(order.status, []):
+            return Response(
+                {"detail": f"Invalid state transition from {order.status} to {new_status}."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
         order.status = new_status
         order.save()
