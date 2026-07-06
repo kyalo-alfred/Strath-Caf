@@ -17,6 +17,34 @@ The system digitizes the traditional cafeteria queue by allowing students/staff 
 
 ---
 
+## 📁 Project Structure
+
+```text
+Strath-Caf/
+│
+├── backend/                  # Django REST Framework backend
+│   ├── accounts/             # User authentication & permissions
+│   ├── catalog/              # Menu items & categories
+│   ├── notifications/        # System alerts
+│   ├── orders/               # Order state machine & cart
+│   ├── payments/             # M-Pesa & financial tracking
+│   ├── strath_caf_backend/   # Core Django settings & routing
+│   ├── manage.py             # Django entry point
+│   └── seed_db.py            # Automated database seeder
+│
+├── src/                      # React frontend
+│   ├── components/           # Reusable UI components (Tailwind/Lucide)
+│   ├── contexts/             # Global state (Auth/Cart)
+│   ├── pages/                # Role-specific dashboard views
+│   ├── services/             # Axios API client setup
+│   └── types/                # Strict TypeScript interfaces
+│
+├── package.json              # Frontend dependencies
+└── README.md                 # Project documentation
+```
+
+---
+
 ## 🛠️ Technologies & Architecture
 
 **Frontend** (React SPA)
@@ -28,7 +56,7 @@ The system digitizes the traditional cafeteria queue by allowing students/staff 
 **Backend** (REST API)
 * **Framework**: Django + Django REST Framework (DRF)
 * **Authentication**: JWT (JSON Web Tokens) via `djangorestframework-simplejwt`
-* **Database**: SQLite (Development) / Easily portable to PostgreSQL
+* **Database**: SQLite (Development) / PostgreSQL ready
 * **API Documentation**: OpenAPI / Swagger (`drf-spectacular`)
 
 ---
@@ -66,10 +94,7 @@ pip install -r requirements.txt
 ```
 
 **Environment Variables:**
-Create your `.env` file from the template:
-```bash
-cp .env.example .env
-```
+Copy `.env.example` to `.env` and fill in any required keys.
 
 **Run Migrations & Seed Database:**
 This step creates the database tables and populates it with ready-to-use dummy data (categories, menu items, and test users).
@@ -106,10 +131,7 @@ npm install
 ```
 
 **Environment Variables:**
-```bash
-cp .env.example .env
-```
-Ensure your frontend `.env` points `VITE_API_URL` to `http://localhost:8000/api/v1`.
+Copy `.env.example` to `.env` (Ensure `VITE_API_URL` points to `http://localhost:8000/api/v1`).
 
 **Start the Development Server:**
 ```bash
