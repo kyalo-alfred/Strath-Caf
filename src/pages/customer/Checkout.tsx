@@ -1,68 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { api } from '../../services/api';
+import { useAuth } m '../../services/api';
 import { Card, CardContent } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { Button } feat(frontend): integrate live Cart, Checkout, and Order Tracking
+
+- Refactored `Checkout.tsx` to handle real API requests via `useMutation` (Order creation and M-Pesa STK Push).
+- Swapped `Orders.tsx` mock lists for paginated and searchable backend queries (`api.getOrders()`).
+- Updated `OrderTracking.tsx` to natively poll the backend (`refetchInterval: 10000`) for real-time status updates and estimated ready times.
+- Corrected the `menu_item_detail` nesting in `OrderTracking.tsx` to match the backend `OrderSerializer`.
+- Integrated `Notifications.tsx` with real endpoints using optimistic cache invalidation.from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ArrowLeft, CheckCircle2, Loader2, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const Checkout = () => {
   const { cart, clearCart, getCartTotal } = useCart();
   const subtotal = getCartTotal();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [phone, setPhone] = useState(user?.phone || '07');
-  const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [newOrderId, setNewOrderId] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const serviceFee = 20;
   const total = subtotal + serviceFee;
 
-  React.useEffect(() => {
-    if (cart.length === 0 && paymentState === 'idle') {
+  useEffect(() => {
+    if (cart.length === 0 && !paymentSuccess) {
       navigate('/cart');
     }
-  }, [cart, navigate, paymentState]);
+  }, [cart, navigate, paymentSuccess]);
 
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phone.length < 10) return;
-    
-    setPaymentState('processing');
-    
-    try {
-      // Format items for Django backend
+  const checkoutMutation = useMutation({
+    mutationFn: async () => {
       const backendItems = cart.map(item => ({
         menu_item_id: item.menu_item.id,
         quantity: item.quantity
       }));
-
-      // Create order via API (Backend handles total calculation and sets user from JWT)
-      const order = await api.createOrder({
-        items: backendItems
-      });
-
-      // Initiate M-Pesa STK push via API
+      const order = await api.createOrder({ items: backendItems });
       await api.initiatePayment(order.id, phone);
-
+      return order;
+    },
+    onSuccess: (order) => {
       // Simulate waiting for callback (since we don't have WebSockets set up to listen yet)
       setTimeout(() => {
-        setPaymentState('success');
-        setNewOrderId(order.id);
+        setPaymentSuccess(true);
+        setNewOrderId(order.id as string);
         clearCart();
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
       }, 3000);
-
-    } catch (error) {
-      console.error(error);
-      setPaymentState('error');
-      setTimeout(() => setPaymentState('idle'), 3000);
     }
+  });
+
+  const handlePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (phone.length < 10) return;
+    checkoutMutation.mutate();
   };
 
-  if (paymentState === 'success') {
+  if (paymentSuccess) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
         <motion.div
@@ -123,12 +122,12 @@ export const Checkout = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     className="h-12 text-lg"
                     placeholder="07XX XXX XXX or 2547XX XXX XXX"
-                    disabled={paymentState !== 'idle'}
+                    disabled={checkoutMutation.isPending || checkoutMutation.isSuccess}
                   />
                 </div>
 
                 <AnimatePresence>
-                  {paymentState === 'error' && (
+                  {checkoutMutation.isError && (
                     <motion.div 
                       initial={{ opacity: 0, height: 0 }} 
                       animate={{ opacity: 1, height: 'auto' }} 
@@ -143,9 +142,9 @@ export const Checkout = () => {
                 <Button 
                   type="submit" 
                   className="w-full h-14 text-lg bg-success hover:bg-success/90 text-white shadow-lg relative overflow-hidden"
-                  disabled={paymentState !== 'idle' || phone.length < 10}
+                  disabled={checkoutMutation.isPending || checkoutMutation.isSuccess || phone.length < 10}
                 >
-                  {paymentState === 'processing' ? (
+                  {checkoutMutation.isPending || checkoutMutation.isSuccess ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Awaiting M-Pesa Pin...

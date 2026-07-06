@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
-import { Order, OrderStatus } from '../../types';
+import { OrderStatus } from '../../types';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { ArrowLeft, Clock, CheckCircle2, ChefHat, Package, Check, RefreshCw } from 'lucide-react';
@@ -10,32 +11,15 @@ import { motion } from 'framer-motion';
 export const OrderTracking = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchOrder = async () => {
-      try {
-        const data = await api.getOrder(id);
-        setOrder(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrder();
+  const { data: order, isLoading } = useQuery({
+    queryKey: ['order', id],
+    queryFn: () => api.getOrder(id!),
+    enabled: !!id,
+    refetchInterval: 10000, // Poll every 10 seconds
+  });
 
-    // Simulate real-time updates for demo purposes
-    const interval = setInterval(() => {
-      fetchOrder();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [id]);
-
-  if (loading && !order) {
+  if (isLoading && !order) {
     return <div className="flex justify-center items-center h-64"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
@@ -49,19 +33,19 @@ export const OrderTracking = () => {
   }
 
   const stages: { status: OrderStatus; label: string; icon: any; desc: string }[] = [
-    { status: 'Pending', label: 'Order Received', icon: CheckCircle2, desc: 'We have received your order.' },
-    { status: 'Preparing', label: 'Preparing MenuItem', icon: ChefHat, desc: 'Chef is preparing your food.' },
-    { status: 'Ready', label: 'Ready for Collection', icon: Package, desc: 'Your order is ready at the counter.' },
-    { status: 'Collected', label: 'Collected', icon: Check, desc: 'Enjoy your meal!' },
+    { status: 'pending', label: 'Order Received', icon: CheckCircle2, desc: 'We have received your order.' },
+    { status: 'preparing', label: 'Preparing Meal', icon: ChefHat, desc: 'Chef is preparing your food.' },
+    { status: 'ready', label: 'Ready for Collection', icon: Package, desc: 'Your order is ready at the counter.' },
+    { status: 'completed', label: 'Collected', icon: Check, desc: 'Enjoy your meal!' },
   ];
 
   const currentStageIndex = stages.findIndex(s => s.status === order.status) !== -1 
     ? stages.findIndex(s => s.status === order.status) 
-    : order.status === 'Cancelled' ? -1 : 0;
+    : order.status === 'cancelled' ? -1 : 0;
 
   // Calculate estimated time remaining
   const now = new Date();
-  const est = new Date(order.estimated_ready_time);
+  const est = order.estimated_ready_time ? new Date(order.estimated_ready_time) : now;
   const diffMinutes = Math.max(0, Math.round((est.getTime() - now.getTime()) / 60000));
 
   return (
@@ -80,7 +64,7 @@ export const OrderTracking = () => {
         <div className="md:col-span-2 space-y-6">
           <Card className="border-none shadow-soft">
             <CardContent className="p-6">
-              {order.status === 'Cancelled' ? (
+              {order.status === 'cancelled' ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="w-8 h-8" />
@@ -128,7 +112,7 @@ export const OrderTracking = () => {
             <CardContent className="p-6 text-center">
               <Clock className="w-8 h-8 mx-auto mb-3 opacity-80" />
               <p className="text-sm font-medium opacity-80 mb-1">Estimated Ready Time</p>
-              {order.status === 'Ready' || order.status === 'Collected' || order.status === 'Cancelled' ? (
+              {order.status === 'ready' || order.status === 'completed' || order.status === 'cancelled' || !order.estimated_ready_time ? (
                 <h2 className="text-3xl font-bold">--:--</h2>
               ) : (
                 <>
@@ -144,9 +128,9 @@ export const OrderTracking = () => {
               <h3 className="font-semibold mb-4 pb-2 border-b">Order Details</h3>
               <div className="space-y-3 text-sm mb-4">
                 {order.items.map(item => (
-                  <div key={item.menu_item.id} className="flex justify-between">
-                    <span className="text-muted-foreground">{item.quantity}x {item.menu_item.name}</span>
-                    <span className="font-medium">KES {item.menu_item.price * item.quantity}</span>
+                  <div key={item.id} className="flex justify-between">
+                    <span className="text-muted-foreground">{item.quantity}x {item.menu_item_detail?.name}</span>
+                    <span className="font-medium">KES {item.price_at_time * item.quantity}</span>
                   </div>
                 ))}
               </div>

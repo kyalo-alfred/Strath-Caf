@@ -1,53 +1,59 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
-import { Notification } from '../../types';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Bell, Trash2, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export const Notifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchNotifs = async () => {
-      try {
-        const data = await api.getNotifications();
-        setNotifications(data);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNotifs();
-  }, []);
+  const { data: notificationsData, isLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => api.getNotifications()
+  });
 
-  const markAsRead = (id: string) => {
-    setNotifications(current => 
-      current.map(n => n.id === id ? { ...n, is_read: true } : n)
-    );
-  };
+  const notifications = notificationsData?.results || [];
 
-  const deleteNotification = (id: string) => {
-    setNotifications(current => current.filter(n => n.id !== id));
-  };
+  const markAsReadMutation = useMutation({
+    mutationFn: (id: string | number) => api.markNotificationRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
 
-  const markAllRead = () => {
-    setNotifications(current => current.map(n => ({ ...n, is_read: true })));
-  };
+  const markAllReadMutation = useMutation({
+    mutationFn: () => api.markAllNotificationsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string | number) => api.deleteNotification(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Notifications</h1>
         {notifications.some(n => !n.is_read) && (
-          <Button variant="ghost" size="sm" onClick={markAllRead}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => markAllReadMutation.mutate()}
+            disabled={markAllReadMutation.isPending}
+          >
             <CheckCircle className="w-4 h-4 mr-2" /> Mark all as read
           </Button>
         )}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="space-y-4">
            {[1,2,3].map(i => <div key={i} className="h-20 bg-muted animate-pulse rounded-xl"></div>)}
         </div>
@@ -73,11 +79,24 @@ export const Notifications = () => {
                 </div>
                 <div className="flex flex-col gap-2 shrink-0">
                   {!notif.is_read && (
-                    <Button variant="ghost" size="icon" onClick={() => markAsRead(notif.id)} title="Mark as read">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => markAsReadMutation.mutate(notif.id)} 
+                      title="Mark as read"
+                      disabled={markAsReadMutation.isPending}
+                    >
                       <CheckCircle className="w-4 h-4 text-primary" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => deleteNotification(notif.id)} title="Delete" className="text-muted-foreground hover:text-danger">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => deleteMutation.mutate(notif.id)} 
+                    title="Delete" 
+                    className="text-muted-foreground hover:text-danger"
+                    disabled={deleteMutation.isPending}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
