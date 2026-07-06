@@ -6,11 +6,11 @@ A robust, full-stack web application built to streamline meal ordering and fulfi
 
 ## 🏗️ Project Overview
 
-The system digitizes the traditional cafeteria queue by allowing students/staff to browse the menu, place orders, and pay digitally (via an M-Pesa STK push simulation). Orders are routed in real-time to the kitchen staff, who process them through distinct states (`Pending` -> `Preparing` -> `Ready` -> `Completed`). Administrators have access to powerful dashboards for managing the menu, users, and viewing analytics.
+The system digitizes the traditional cafeteria queue by allowing students/staff to browse the menu, place orders, and pay digitally (via an M-Pesa STK push simulation). Orders are updated live within the application through the order state machine (`Pending` -> `Preparing` -> `Ready` -> `Completed`). Administrators have access to powerful dashboards for managing the menu, users, and viewing analytics. The application follows a client-server architecture, with a React frontend communicating with a Django REST Framework backend through RESTful APIs secured using JWT authentication.
 
 ### Key Features
 * **Role-Based Workflows**: Customer, Server, and Admin dashboards.
-* **Real-time Order State Machine**: Strict backend validation for order progression.
+* **Live Order State Machine**: Strict backend validation for order progression.
 * **M-Pesa Integration**: Simulated mobile money STK push checkout flow.
 * **Robust API Integrity**: Decoupled Order and Payment lifecycle management.
 * **Comprehensive Analytics**: Admin reports tracking daily revenue and order volume.
@@ -39,6 +39,8 @@ Strath-Caf/
 │   ├── services/             # Axios API client setup
 │   └── types/                # Strict TypeScript interfaces
 │
+├── public/                   # Static assets
+├── vite.config.ts            # Vite bundler configuration
 ├── package.json              # Frontend dependencies
 └── README.md                 # Project documentation
 ```
@@ -56,7 +58,7 @@ Strath-Caf/
 **Backend** (REST API)
 * **Framework**: Django + Django REST Framework (DRF)
 * **Authentication**: JWT (JSON Web Tokens) via `djangorestframework-simplejwt`
-* **Database**: SQLite (Development) / PostgreSQL ready
+* **Database**: PostgreSQL
 * **API Documentation**: OpenAPI / Swagger (`drf-spectacular`)
 
 ---
@@ -67,7 +69,7 @@ This repository is designed for rapid reproducibility. Follow the steps below to
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/username/Strath-Caf.git
 cd Strath-Caf
 ```
 
@@ -104,9 +106,12 @@ python seed_db.py
 ```
 
 *The `seed_db.py` script automatically creates:*
-* **Admin**: `admin@example.com` (Password: `Password123!`)
-* **Server**: `server@example.com` (Password: `Password123!`)
-* **Customer**: `customer@example.com` (Password: `Password123!`)
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@example.com` | `Password123!` |
+| Server | `server@example.com` | `Password123!` |
+| Customer | `customer@example.com` | `Password123!` |
 
 **Create a Superuser (Optional):**
 If you need direct access to the built-in Django Admin panel (`/admin`):
@@ -131,7 +136,10 @@ npm install
 ```
 
 **Environment Variables:**
-Copy `.env.example` to `.env` (Ensure `VITE_API_URL` points to `http://localhost:8000/api/v1`).
+Copy `.env.example` to `.env` and configure the following variable:
+```env
+VITE_API_URL=http://localhost:8000/api/v1
+```
 
 **Start the Development Server:**
 ```bash
@@ -143,12 +151,16 @@ npm run dev
 
 ## 🧪 Testing
 
-The backend includes a comprehensive End-to-End (E2E) integration test script that validates the full system architecture (Order Creation -> M-Pesa Payment Callback -> Server Fulfillment -> Admin Reports) including negative/failure paths (400, 401, 403, 404 responses).
+The backend includes a comprehensive test suite to ensure system stability.
 
-To run the full E2E test suite:
+Run standard unit and integration tests:
 ```bash
 cd backend
-# Make sure your virtual environment is active
+python manage.py test
+```
+
+Run the End-to-End (E2E) integration script, which validates the full system workflow (Order Creation -> M-Pesa Payment Callback -> Server Fulfillment -> Admin Reports) including negative/failure paths:
+```bash
 python e2e_flow.py
 ```
 
