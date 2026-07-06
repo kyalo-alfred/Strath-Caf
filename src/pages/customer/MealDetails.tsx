@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
-import { MenuItem } from '../../types';
 import { useCart } from '../../contexts/CartContext';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -12,24 +12,13 @@ export const MealDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [meal, setMeal] = useState<MenuItem | null>(null);
-  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchMeal = async () => {
-      try {
-        const data = await api.getMeal(id);
-        setMeal(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMeal();
-  }, [id]);
+  const { data: meal, isLoading } = useQuery({
+    queryKey: ['meal', id],
+    queryFn: () => api.getMeal(id!),
+    enabled: !!id
+  });
 
   const handleAddToCart = () => {
     if (meal) {
@@ -38,14 +27,14 @@ export const MealDetails = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="flex justify-center items-center h-64">Loading...</div>;
   }
 
   if (!meal) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold mb-4">MenuItem not found</h2>
+        <h2 className="text-2xl font-bold mb-4">Meal not found</h2>
         <Button onClick={() => navigate('/menu')}>Back to Menu</Button>
       </div>
     );
@@ -91,7 +80,7 @@ export const MealDetails = () => {
 
           <p className="text-muted-foreground mb-8 text-lg">{meal.description}</p>
 
-          {meal.ingredients && (
+          {meal.ingredients && meal.ingredients.length > 0 && (
             <div className="mb-8 border-t border-b py-6">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Leaf className="w-5 h-5 text-success" /> Ingredients
