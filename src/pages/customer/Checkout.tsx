@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
-import { useAuth } m '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { api } from '../../services/api';
 import { Card, CardContent } from '../../components/ui/Card';
-import { Button } feat(frontend): integrate live Cart, Checkout, and Order Tracking
-
-- Refactored `Checkout.tsx` to handle real API requests via `useMutation` (Order creation and M-Pesa STK Push).
-- Swapped `Orders.tsx` mock lists for paginated and searchable backend queries (`api.getOrders()`).
-- Updated `OrderTracking.tsx` to natively poll the backend (`refetchInterval: 10000`) for real-time status updates and estimated ready times.
-- Corrected the `menu_item_detail` nesting in `OrderTracking.tsx` to match the backend `OrderSerializer`.
-- Integrated `Notifications.tsx` with real endpoints using optimistic cache invalidation.from '../../components/ui/Button';
+import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ArrowLeft, CheckCircle2, Loader2, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+const normalizeMpesaPhone = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+
+  if (digits.startsWith('254') && digits.length === 12) {
+    return digits;
+  }
+
+  if (digits.startsWith('07') && digits.length === 10) {
+    return `254${digits.slice(1)}`;
+  }
+
+  if (digits.startsWith('7') && digits.length === 9) {
+    return `254${digits}`;
+  }
+
+  return '';
+};
 
 export const Checkout = () => {
   const { cart, clearCart, getCartTotal } = useCart();
@@ -36,16 +49,28 @@ export const Checkout = () => {
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
+      const normalizedPhone = normalizeMpesaPhone(phone);
+
+      if (!normalizedPhone) {
+        throw new Error('Please enter a valid M-Pesa phone number.');
+      }
+
+      if (cart.length === 0) {
+        throw new Error('Cannot checkout with an empty cart.');
+      }
+
       const backendItems = cart.map(item => ({
         menu_item_id: item.menu_item.id,
         quantity: item.quantity
       }));
+
       const order = await api.createOrder({ items: backendItems });
-      await api.initiatePayment(order.id, phone);
+      await api.initiatePayment(order.id, normalizedPhone);
+
       return order;
     },
     onSuccess: (order) => {
-      // Simulate waiting for callback (since we don't have WebSockets set up to listen yet)
+      // TODO: Replace this with real backend payment-status polling.
       setTimeout(() => {
         setPaymentSuccess(true);
         setNewOrderId(order.id as string);
@@ -57,7 +82,11 @@ export const Checkout = () => {
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length < 10) return;
+
+    if (!normalizeMpesaPhone(phone)) {
+      return;
+    }
+
     checkoutMutation.mutate();
   };
 
@@ -134,7 +163,7 @@ export const Checkout = () => {
                       exit={{ opacity: 0, height: 0 }}
                       className="text-danger text-sm bg-danger/10 p-3 rounded-md"
                     >
-                      Payment failed or was cancelled. Please try again.
+                      Checkout failed. Please confirm your phone number and try again.
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -142,7 +171,7 @@ export const Checkout = () => {
                 <Button 
                   type="submit" 
                   className="w-full h-14 text-lg bg-success hover:bg-success/90 text-white shadow-lg relative overflow-hidden"
-                  disabled={checkoutMutation.isPending || checkoutMutation.isSuccess || phone.length < 10}
+                  disabled={checkoutMutation.isPending || checkoutMutation.isSuccess || !normalizeMpesaPhone(phone)}
                 >
                   {checkoutMutation.isPending || checkoutMutation.isSuccess ? (
                     <span className="flex items-center gap-2">
