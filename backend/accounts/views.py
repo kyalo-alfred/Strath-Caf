@@ -37,6 +37,11 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ['first_name', 'last_name', 'email']
     ordering_fields = ['date_joined', 'first_name']
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserRegistrationSerializer
+        return UserSerializer
+
     @action(detail=True, methods=['patch'])
     def deactivate(self, request, pk=None):
         user = self.get_object()

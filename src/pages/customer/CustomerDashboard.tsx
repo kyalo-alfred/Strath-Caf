@@ -136,12 +136,10 @@ export const CustomerDashboard = () => {
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       {/* @ts-ignore */}
                       <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
-                      {['Pending', 'Preparing', 'Ready'].includes(order.status) ? (
+                      {['Pending', 'Preparing', 'Ready'].includes(order.status) && (
                         <Link to={`/orders/${order.id}`}>
                           <Button size="sm" variant="outline" className="h-7 text-[10px] px-2">Track</Button>
                         </Link>
-                      ) : (
-                        <Button size="sm" variant="ghost" className="h-7 text-[10px] px-2" onClick={() => alert('TODO: Connect to POST /api/orders/ to duplicate order')}>Reorder</Button>
                       )}
                     </div>
                   </CardContent>

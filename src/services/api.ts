@@ -100,6 +100,10 @@ export const api = {
     const response = await axiosInstance.get('auth/users/', { params });
     return response.data;
   },
+  createUser: async (userData: any): Promise<User> => {
+    const response = await axiosInstance.post('auth/users/', userData);
+    return response.data;
+  },
   deactivateUser: async (id: number | string): Promise<void> => {
     await axiosInstance.patch(`auth/users/${id}/deactivate/`);
   },

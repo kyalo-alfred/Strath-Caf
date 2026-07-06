@@ -6,9 +6,21 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Search, Shield, User as UserIcon, UserMinus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Modal } from '../../components/ui/Modal';
+import toast from 'react-hot-toast';
 
 export const AdminUsers = () => {
   const queryClient = useQueryClient();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    role: 'customer',
+    university_id: '',
+    phone: ''
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
 
@@ -34,6 +46,10 @@ export const AdminUsers = () => {
     mutationFn: api.deactivateUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('User deactivated successfully');
+    },
+    onError: () => {
+      toast.error('Failed to deactivate user');
     }
   });
 
@@ -43,11 +59,37 @@ export const AdminUsers = () => {
     }
   };
 
+  const createMutation = useMutation({
+    mutationFn: api.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('User created successfully');
+      setIsCreateModalOpen(false);
+      setNewUser({
+        first_name: '',
+        last_name: '',
+        email: '',
+        password: '',
+        role: 'customer',
+        university_id: '',
+        phone: ''
+      });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.email?.[0] || 'Failed to create user');
+    }
+  });
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate(newUser);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">User Management</h1>
-        <Button onClick={() => alert('TODO: Implement User Creation Modal')} variant="outline">Create New User</Button>
+        <Button onClick={() => setIsCreateModalOpen(true)} variant="outline">Create New User</Button>
       </div>
 
       <Card>
@@ -158,6 +200,57 @@ export const AdminUsers = () => {
           )}
         </CardContent>
       </Card>
+
+      <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create New User">
+        <form onSubmit={handleCreateUser} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">First Name</label>
+              <Input required value={newUser.first_name} onChange={e => setNewUser({...newUser, first_name: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Last Name</label>
+              <Input required value={newUser.last_name} onChange={e => setNewUser({...newUser, last_name: e.target.value})} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <Input type="email" required value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <Input type="password" required minLength={8} value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Role</label>
+            <select 
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={newUser.role} 
+              onChange={e => setNewUser({...newUser, role: e.target.value})}
+            >
+              <option value="customer">Customer</option>
+              <option value="server">Staff/Server</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Student/Staff ID</label>
+              <Input value={newUser.university_id} onChange={e => setNewUser({...newUser, university_id: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Phone Number</label>
+              <Input value={newUser.phone} onChange={e => setNewUser({...newUser, phone: e.target.value})} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={createMutation.isPending}>
+              {createMutation.isPending ? 'Creating...' : 'Create User'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

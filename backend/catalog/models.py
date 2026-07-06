@@ -14,7 +14,7 @@ class Category(models.Model):
         return self.name
 
 class MenuItem(models.Model):
-    category = models.ForeignKey(Category, related_name='items', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name='items', on_delete=models.PROTECT)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)

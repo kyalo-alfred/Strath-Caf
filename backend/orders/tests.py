@@ -1,45 +1,79 @@
 from django.test import TestCase
-from rest_framework.test import APIClient
+from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APIClient
 from accounts.models import CustomUser
 from catalog.models import Category, MenuItem
-from .models import Order, OrderItem
+from orders.models import Order, OrderItem
 
-class OrderTests(TestCase):
+class OrderProcessingTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.customer = CustomUser.objects.create_user(
-            email='customer@example.com', password='password123',
-            first_name='John', last_name='Doe', role=CustomUser.Role.CUSTOMER
+            email='student@strath.edu',
+            password='studentpassword123',
+            role=CustomUser.Role.CUSTOMER
         )
-        self.server = CustomUser.objects.create_user(
-            email='server@example.com', password='password123',
-            first_name='Jane', last_name='Doe', role=CustomUser.Role.SERVER
+        self.staff_user = CustomUser.objects.create_user(
+            email='staff@strath.edu',
+            password='staffpassword123',
+            role=CustomUser.Role.SERVER
         )
         
-        self.category = Category.objects.create(name='Drinks')
-        self.menu_item = MenuItem.objects.create(category=self.category, name='Coffee', price='150.00')
+        self.category = Category.objects.create(name='Snacks')
+        self.menu_item = MenuItem.objects.create(
+            category=self.category,
+            name='Samosa',
+            price=50.00
+        )
+        
+        self.orders_url = '/api/v1/orders/'
 
-    def test_customer_can_create_order(self):
+    def test_create_order_success(self):
         self.client.force_authenticate(user=self.customer)
-        response = self.client.post('/api/v1/orders/', {
+        response = self.client.post(self.orders_url, {
             'items': [
                 {'menu_item_id': self.menu_item.id, 'quantity': 2}
             ]
         }, format='json')
+        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['total_amount'], '300.00')
-        self.assertEqual(response.data['status'], Order.Status.PENDING)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(OrderItem.objects.count(), 1)
+        
+        order = Order.objects.first()
+        self.assertEqual(order.user, self.customer)
+        self.assertEqual(order.total_amount, 100.00)  # 2 * 50
 
-    def test_server_can_update_status(self):
-        order = Order.objects.create(user=self.customer, total_amount='150.00')
-        OrderItem.objects.create(order=order, menu_item=self.menu_item, quantity=1, price_at_time='150.00')
+    def test_status_transition_rules(self):
+        # Create an order
+        order = Order.objects.create(user=self.customer, total_amount=50.00)
         
-        self.client.force_authenticate(user=self.server)
-        response = self.client.patch(f'/api/v1/orders/{order.id}/update_status/', {
-            'status': Order.Status.PREPARING
-        }, format='json')
-        
+        self.client.force_authenticate(user=self.staff_user)
+        update_url = f'{self.orders_url}{order.id}/update_status/'
+
+        # Valid transition: Pending -> Preparing
+        response = self.client.patch(update_url, {'status': 'preparing'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         order.refresh_from_db()
-        self.assertEqual(order.status, Order.Status.PREPARING)
+        self.assertEqual(order.status, 'preparing')
+
+        # Invalid transition: Preparing -> Pending
+        response = self.client.patch(update_url, {'status': 'pending'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'preparing')  # Unchanged
+
+        # Valid transition: Preparing -> Ready
+        response = self.client.patch(update_url, {'status': 'ready'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_customer_cannot_update_status(self):
+        order = Order.objects.create(user=self.customer, total_amount=50.00)
+        self.client.force_authenticate(user=self.customer)
+        
+        update_url = f'{self.orders_url}{order.id}/update_status/'
+        response = self.client.patch(update_url, {'status': 'preparing'})
+        
+        # Depending on permissions setup, could be 403 or not found if scoped out
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

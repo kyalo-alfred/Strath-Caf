@@ -4,6 +4,8 @@ import { api } from '../../services/api';
 import { OrderStatus } from '../../types';
 import { Card, CardContent } from '../../components/ui/Card';
 
+import toast from 'react-hot-toast';
+
 export const StaffQueue = () => {
   const queryClient = useQueryClient();
   const [draggedOrderId, setDraggedOrderId] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export const StaffQueue = () => {
     onError: (err, variables, context: any) => {
       // Rollback on error
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.error('Failed to update order status. Please try again.');
     },
     onSettled: () => {
       // Always refetch to ensure we're perfectly synced with backend

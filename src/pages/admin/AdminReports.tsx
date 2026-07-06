@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Download, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export const AdminReports = () => {
   const reports = [
@@ -11,11 +12,15 @@ export const AdminReports = () => {
     { title: 'Inventory Alert Report', desc: 'List of frequently sold out items.', type: 'PDF' },
   ];
 
+  const handleExportClick = () => {
+    toast('Custom report export is reserved for a future version.', { icon: 'ℹ️' });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reports</h1>
-        <Button className="gap-2" onClick={() => alert('TODO: Connect to GET /api/reports/generate')}>Generate Custom Report</Button>
+        <Button className="gap-2" onClick={handleExportClick}>Generate Custom Report</Button>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -28,7 +33,7 @@ export const AdminReports = () => {
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">{report.title}</h3>
                 <p className="text-muted-foreground text-sm mt-1 mb-4">{report.desc}</p>
-                <Button variant="outline" size="sm" className="gap-2 text-xs">
+                <Button variant="outline" size="sm" className="gap-2 text-xs" onClick={handleExportClick}>
                   <Download className="w-4 h-4" /> Export {report.type}
                 </Button>
               </div>

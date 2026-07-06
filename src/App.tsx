@@ -52,11 +52,14 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
   return <>{children}</>;
 };
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
+          <Toaster position="top-right" />
           <Routes>
             {/* Public Routes */}
             <Route element={<PublicLayout />}>
