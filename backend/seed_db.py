@@ -12,10 +12,13 @@ User = get_user_model()
 
 def seed():
     print("Clearing existing catalog and non-superuser accounts...")
-    # Keep superusers safe
+    
+    # Delete every non-superuser to ensure a perfectly clean slate
     User.objects.filter(is_superuser=False).delete()
-    Category.objects.all().delete()
+    
+    # Must delete menu items before categories due to on_delete=models.PROTECT
     MenuItem.objects.all().delete()
+    Category.objects.all().delete()
 
     print("Creating sample users...")
     users_data = [
@@ -25,15 +28,15 @@ def seed():
     ]
 
     for u_data in users_data:
-        user, created = User.objects.get_or_create(email=u_data['email'], defaults={
-            'role': u_data['role'],
-            'first_name': u_data['first_name'],
-            'last_name': u_data['last_name']
-        })
-        if created:
-            user.set_password('Password123!')
-            user.save()
-            print(f"Created {u_data['role']}: {u_data['email']} / Password123!")
+        user = User.objects.create(
+            email=u_data['email'],
+            role=u_data['role'],
+            first_name=u_data['first_name'],
+            last_name=u_data['last_name']
+        )
+        user.set_password('Password123!')
+        user.save()
+        print(f"Created {u_data['role']}: {u_data['email']} / Password123!")
 
     print("\nCreating categories...")
     categories_data = [
@@ -46,7 +49,7 @@ def seed():
     
     categories = {}
     for cat_data in categories_data:
-        cat, created = Category.objects.get_or_create(**cat_data)
+        cat = Category.objects.create(**cat_data)
         categories[cat.name] = cat
         print(f"Created category: {cat.name}")
 
