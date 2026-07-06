@@ -5,16 +5,30 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
-import { Search, Shield, User as UserIcon, UserMinus } from 'lucide-react';
+import { Search, Shield, User as UserIcon, UserMinus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const AdminUsers = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: api.getUsers,
+  // Debounce search term to avoid spamming the backend
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1); // Reset to page 1 on new search
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ['admin-users', page, debouncedSearch],
+    queryFn: () => api.getUsers({ page, search: debouncedSearch }),
   });
+
+  const users = usersData?.results || [];
+  const totalPages = usersData?.count ? Math.ceil(usersData.count / 10) : 1;
 
   const deactivateMutation = useMutation({
     mutationFn: api.deactivateUser,
@@ -24,15 +38,10 @@ export const AdminUsers = () => {
   });
 
   const handleDeactivate = (id: string) => {
-    if (confirm('Are you sure you want to deactivate this user? They will not be deleted, but they will not be able to log in.')) {
+    if (confirm('Are you sure you want to deactivate this user? They will not be able to log in.')) {
       deactivateMutation.mutate(id);
     }
   };
-
-  const filteredUsers = users.filter(u => 
-    `${u.first_name} ${u.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="space-y-6">
@@ -56,7 +65,7 @@ export const AdminUsers = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-muted text-muted-foreground">
+              <thead className="bg-muted text-muted-foreground border-b">
                 <tr>
                   <th className="px-6 py-4 font-medium">Name</th>
                   <th className="px-6 py-4 font-medium">Email</th>
@@ -70,22 +79,18 @@ export const AdminUsers = () => {
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-muted-foreground">Loading users...</td>
                   </tr>
-                ) : filteredUsers.length === 0 ? (
+                ) : users.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-muted-foreground">No users found.</td>
                   </tr>
                 ) : (
-                  filteredUsers.map((u) => {
-                    // Because we added 'is_active' indirectly, we can check it if the backend returns it.
-                    // If not returned, assume active unless we add it to the serializer.
-                    // For now, let's assume all fetched users are active or the serializer includes it.
-                    // To be safe, we use any.
+                  users.map((u) => {
                     const isActive = (u as any).is_active !== false; 
 
                     return (
                       <tr key={u.id} className="hover:bg-muted/50 transition-colors">
                         <td className="px-6 py-4 font-medium flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg shrink-0">
                             {u.first_name?.charAt(0) || 'U'}
                           </div>
                           {u.first_name} {u.last_name}
@@ -125,6 +130,32 @@ export const AdminUsers = () => {
               </tbody>
             </table>
           </div>
+          
+          {totalPages > 1 && (
+            <div className="p-4 border-t flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Showing page {page} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={page === totalPages || usersData?.next === null}
+                  onClick={() => setPage(p => p + 1)}
+                >
+                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

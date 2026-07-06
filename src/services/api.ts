@@ -41,6 +41,17 @@ export const api = {
     const response = await axiosInstance.get('catalog/categories/', { params });
     return response.data;
   },
+  createCategory: async (data: Partial<Category>): Promise<Category> => {
+    const response = await axiosInstance.post('catalog/categories/', data);
+    return response.data;
+  },
+  updateCategory: async (id: number | string, data: Partial<Category>): Promise<Category> => {
+    const response = await axiosInstance.patch(`catalog/categories/${id}/`, data);
+    return response.data;
+  },
+  deleteCategory: async (id: number | string): Promise<void> => {
+    await axiosInstance.delete(`catalog/categories/${id}/`);
+  },
 
   // Orders
   getOrders: async (params?: any): Promise<PaginatedResponse<Order>> => {
