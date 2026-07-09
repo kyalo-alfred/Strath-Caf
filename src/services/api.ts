@@ -79,6 +79,14 @@ export const api = {
     });
     return response.data;
   },
+  mockPaymentCallback: async (paymentId: string | number) => {
+    const response = await axiosInstance.post('payments/callback/', {
+      payment_id: paymentId,
+      success: true,
+      transaction_id: `MOCK_${Math.random().toString(36).substring(7).toUpperCase()}`
+    });
+    return response.data;
+  },
 
   // Notifications
   getNotifications: async (params?: any): Promise<PaginatedResponse<Notification>> => {
@@ -111,6 +119,12 @@ export const api = {
   // Reports
   getReports: async (): Promise<any> => {
     const response = await axiosInstance.get('admin/reports/');
+    return response.data;
+  },
+  exportOrdersCSV: async (): Promise<Blob> => {
+    const response = await axiosInstance.get('orders/export/', {
+      responseType: 'blob'
+    });
     return response.data;
   }
 };

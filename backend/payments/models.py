@@ -7,6 +7,7 @@ class Payment(models.Model):
         PENDING = 'pending', 'Pending'
         SUCCESS = 'success', 'Success'
         FAILED = 'failed', 'Failed'
+        CANCELLED = 'cancelled', 'Cancelled'
 
     order = models.OneToOneField(Order, related_name='payment', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='payments', on_delete=models.CASCADE)

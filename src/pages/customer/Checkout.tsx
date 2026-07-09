@@ -65,18 +65,22 @@ export const Checkout = () => {
       }));
 
       const order = await api.createOrder({ items: backendItems });
-      await api.initiatePayment(order.id, normalizedPhone);
+      const paymentRes = await api.initiatePayment(order.id, normalizedPhone);
+
+      // Simulate the time it takes for a user to enter their M-Pesa PIN
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Hit the callback endpoint to tell the backend the payment succeeded
+      await api.mockPaymentCallback(paymentRes.payment_id);
 
       return order;
     },
     onSuccess: (order) => {
-      // TODO: Replace this with real backend payment-status polling.
-      setTimeout(() => {
-        setPaymentSuccess(true);
-        setNewOrderId(order.id as string);
-        clearCart();
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-      }, 3000);
+      setPaymentSuccess(true);
+      setNewOrderId(order.id as string);
+      clearCart();
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
     }
   });
 

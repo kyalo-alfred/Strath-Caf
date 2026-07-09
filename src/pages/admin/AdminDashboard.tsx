@@ -29,16 +29,7 @@ export const AdminDashboard = () => {
     { title: 'Registered Users', value: totalUsers.toString(), icon: Users, trend: 'Total active & inactive' },
   ];
 
-  // Placeholder data for the chart, since the backend doesn't provide time-series data yet
-  const chartData = [
-    { name: 'Mon', revenue: 4000 },
-    { name: 'Tue', revenue: 3000 },
-    { name: 'Wed', revenue: 2000 },
-    { name: 'Thu', revenue: 2780 },
-    { name: 'Fri', revenue: 1890 },
-    { name: 'Sat', revenue: 2390 },
-    { name: 'Sun', revenue: 3490 },
-  ];
+  const chartData = reportsData?.chart_data || [];
 
   return (
     <div className="space-y-6">

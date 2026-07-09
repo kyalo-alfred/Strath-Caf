@@ -6,7 +6,7 @@ import { Order, MenuItem } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { Clock, TrendingUp, Search, ChevronRight } from 'lucide-react';
+import { Star, Clock, TrendingUp, Search, ChevronRight } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 
 export const CustomerDashboard = () => {
@@ -53,14 +53,11 @@ export const CustomerDashboard = () => {
       <Card className="bg-gradient-to-br from-primary to-secondary text-primary-foreground border-none">
         <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Current Queue Status</h2>
-            <p className="text-primary-foreground/80 mb-4">Main Cafeteria is currently moderately busy.</p>
+            <h2 className="text-xl font-semibold mb-2">Quick Service</h2>
+            <p className="text-primary-foreground/80 mb-4">Order ahead from your phone and pick it up when it's ready.</p>
             <div className="flex items-center gap-4 text-sm font-medium">
               <div className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full">
-                <Clock className="w-4 h-4" /> Est. wait: 15 mins
-              </div>
-              <div className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full">
-                <TrendingUp className="w-4 h-4" /> 12 orders ahead
+                <Star className="w-4 h-4" /> Fresh Daily
               </div>
             </div>
           </div>

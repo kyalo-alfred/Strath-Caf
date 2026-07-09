@@ -8,7 +8,7 @@ This is the Django REST Framework backend for the Strath-Caf project.
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   python manage.py runserver  # On Windows use `venv\Scripts\activate`
    ```
 3. **Install dependencies**:
    ```bash

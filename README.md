@@ -82,7 +82,6 @@ cd backend
 **Create and activate a virtual environment:**
 ```bash
 # Windows
-python -m venv venv
 .\venv\Scripts\activate
 
 # Mac/Linux

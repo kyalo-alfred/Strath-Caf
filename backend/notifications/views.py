@@ -13,7 +13,7 @@ class NotificationViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixi
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Notification.objects.none()
-        return Notification.objects.filter(user=self.request.user)
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 
     @action(detail=False, methods=['patch'])
     def mark_all_read(self, request):

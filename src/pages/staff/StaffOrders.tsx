@@ -66,6 +66,16 @@ export const StaffOrders = () => {
                   {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
                 <div className="flex gap-2">
+                  {(order.status === 'pending' || order.status === 'preparing') && (
+                    <Button 
+                      variant="outline"
+                      className="text-danger border-danger/50 hover:bg-danger/10"
+                      onClick={() => updateStatusMutation.mutate({ id: order.id, status: 'cancelled' })}
+                      disabled={updateStatusMutation.isPending}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                   {order.status === 'pending' && (
                     <Button 
                       onClick={() => updateStatusMutation.mutate({ id: order.id, status: 'preparing' })}

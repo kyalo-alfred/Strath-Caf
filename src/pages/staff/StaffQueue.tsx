@@ -139,6 +139,7 @@ export const StaffQueue = () => {
                         </div>
                         <p className="text-sm font-medium mb-3">{order.customer_name}</p>
                         <div className="flex gap-2 flex-wrap">
+                          {(status === 'pending' || status === 'preparing') && <button onClick={() => moveOrder(order.id.toString(), 'cancelled')} className="text-xs bg-danger/10 text-danger hover:bg-danger/20 border border-danger/30 px-2 py-1 rounded">Cancel</button>}
                           {status === 'pending' && <button onClick={() => moveOrder(order.id.toString(), 'preparing')} className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">Start Prep</button>}
                           {status === 'preparing' && <button onClick={() => moveOrder(order.id.toString(), 'ready')} className="text-xs bg-success text-success-foreground px-2 py-1 rounded">Mark Ready</button>}
                           {status === 'ready' && <button onClick={() => moveOrder(order.id.toString(), 'completed')} className="text-xs bg-muted-foreground text-white px-2 py-1 rounded">Collected</button>}
